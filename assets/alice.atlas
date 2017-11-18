@@ -1,0 +1,83 @@
+
+alice.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm+gun
+  rotate: true
+  xy: 804, 79
+  size: 91, 160
+  orig: 91, 160
+  offset: 0, 0
+  index: -1
+arm+gun_shot
+  rotate: false
+  xy: 804, 172
+  size: 179, 62
+  orig: 179, 62
+  offset: 0, 0
+  index: -1
+baiza-
+  rotate: false
+  xy: 365, 155
+  size: 244, 79
+  orig: 244, 79
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 217, 53
+  size: 146, 181
+  orig: 146, 181
+  offset: 0, 0
+  index: -1
+eye01
+  rotate: false
+  xy: 640, 2
+  size: 109, 46
+  orig: 109, 46
+  offset: 0, 0
+  index: -1
+eye02
+  rotate: false
+  xy: 217, 26
+  size: 121, 25
+  orig: 121, 25
+  offset: 0, 0
+  index: -1
+hair01
+  rotate: false
+  xy: 365, 40
+  size: 184, 113
+  orig: 184, 113
+  offset: 0, 0
+  index: -1
+hair02
+  rotate: true
+  xy: 611, 156
+  size: 78, 191
+  orig: 78, 191
+  offset: 0, 0
+  index: -1
+hair03
+  rotate: false
+  xy: 551, 3
+  size: 87, 150
+  orig: 87, 150
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 8
+  size: 213, 226
+  orig: 213, 226
+  offset: 0, 0
+  index: -1
+leg
+  rotate: false
+  xy: 640, 50
+  size: 120, 104
+  orig: 120, 104
+  offset: 0, 0
+  index: -1

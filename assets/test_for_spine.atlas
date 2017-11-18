@@ -1,0 +1,90 @@
+
+test_for_spine.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+L_leg
+  rotate: true
+  xy: 656, 94
+  size: 48, 103
+  orig: 48, 103
+  offset: 0, 0
+  index: -1
+R_leg
+  rotate: true
+  xy: 217, 2
+  size: 56, 102
+  orig: 56, 102
+  offset: 0, 0
+  index: -1
+arm+gun
+  rotate: true
+  xy: 837, 163
+  size: 91, 160
+  orig: 91, 160
+  offset: 0, 0
+  index: -1
+arm+gun_shot
+  rotate: false
+  xy: 656, 192
+  size: 179, 62
+  orig: 179, 62
+  offset: 0, 0
+  index: -1
+baiza-
+  rotate: false
+  xy: 217, 175
+  size: 244, 79
+  orig: 244, 79
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 403, 41
+  size: 135, 132
+  orig: 135, 132
+  offset: 0, 0
+  index: -1
+eye01
+  rotate: false
+  xy: 656, 144
+  size: 109, 46
+  orig: 109, 46
+  offset: 0, 0
+  index: -1
+eye02
+  rotate: true
+  xy: 629, 53
+  size: 121, 25
+  orig: 121, 25
+  offset: 0, 0
+  index: -1
+hair01
+  rotate: false
+  xy: 217, 60
+  size: 184, 113
+  orig: 184, 113
+  offset: 0, 0
+  index: -1
+hair02
+  rotate: true
+  xy: 463, 176
+  size: 78, 191
+  orig: 78, 191
+  offset: 0, 0
+  index: -1
+hair03
+  rotate: false
+  xy: 540, 24
+  size: 87, 150
+  orig: 87, 150
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 28
+  size: 213, 226
+  orig: 213, 226
+  offset: 0, 0
+  index: -1
