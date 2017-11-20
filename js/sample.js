@@ -2,13 +2,15 @@ $(function() {
 
 var position = 0;
 var WIDTH    = 640;
-var HEIGHT   = 480; 
+var HEIGHT   = 480;
 var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT);
 document.body.appendChild(renderer.view);
 
 // create the root of the scene graph
 var stage   = new PIXI.Container();
-var bg      = new PIXI.Sprite.fromImage('https://voltack.github.io/mats/images/2015/12/bg01.jpg');
+//var bg      = new PIXI.Sprite.fromImage('https://voltack.github.io/mats/images/2015/12/bg01.jpg');
+//var bg      = new PIXI.Sprite.fromImage('../img/bg.jpg');
+var bg      = new PIXI.Texture.fromImage('../img/bg.jpg');
 var snows      = [];
 var bulletList = [];
 var enemyBulletList = [];
@@ -16,8 +18,9 @@ var enemyList  = [];
 var power_gague = 3;
 var playerList = [];
 var SNOW_LIMIT = 600;
-
+var HALF_WIDTH = WIDTH * 0.5;
 //input keyCode
+var gameScene = new PIXI.Container();
 var counter     = 0;
 var SPACE       = 32;
 var LEFT_ARROW  = 37;
@@ -25,34 +28,8 @@ var UP_ARROW    = 38;
 var RIGHT_ARROW = 39;
 var DOWN_ARROW  = 40;
 
-stage.addChild(bg);
-
-//雪の初期化
-for(var i = 0; i < SNOW_LIMIT; i++) {
-  var scale = (Math.floor(Math.random() * 6) + 5) / 10;
-  snows.push(new PIXI.Graphics().beginFill(0xFFFFFF,0.5).drawCircle(0,0,5));
-  snows[i].position.x = Math.random() * WIDTH;
-  snows[i].position.y = Math.random() * HEIGHT;
-  snows[i].scale.x = scale;
-  snows[i].scale.y = scale;
-  //stage.addChild(snows[i]);
-}
-
-//snow_animate();
-
-function snow_animate() {
-  requestAnimationFrame(snow_animate);
-
-  for (var i = 0; i < SNOW_LIMIT; i++) {
-    var scale = snows[i].scale.x;
-    snows[i].position.x += (Math.random() - 0.5) * 1 * scale;
-    snows[i].position.y += (scale * scale) + 0.1;
-    if (snows[i].position.y > HEIGHT) {
-      snows[i].position.y = -10;
-    }
-  }
-  renderer.render(stage);
-}
+scence = new PIXI.extras.TilingSprite(bg, WIDTH, HEIGHT);
+stage.addChild(scence);
 
 // 銃のモーション
 function gun_shot_enemy_animate() {
@@ -104,7 +81,7 @@ function onAssetsLoaded(loader, res) {
   var move_y = 0;
 
   // set the position
-  alice.position.x = renderer.width / 2;
+  alice.position.x = renderer.width * 0.5;
   alice.position.y = renderer.height;
 
   enemy.position.x = 0;
@@ -126,7 +103,6 @@ function onAssetsLoaded(loader, res) {
   playerList.push(alice);
 
   function moveXposition() {
-    console.log(move_x, alice.position.x, enemy.position.x);
     if (move_x < 0 && alice.position.x < enemy.position.x) {
       return 0;
     }
@@ -150,32 +126,40 @@ function onAssetsLoaded(loader, res) {
   }
 
   $(window).keydown(function(event) {
-    switch(event.keyCode) {
+      if (playerList.length != 0) {
+      switch(event.keyCode) {
       case LEFT_ARROW:
-        move_x = -10;
-        alice.position.x += moveXposition();
-        break;
+      move_x = -10;
+      alice.position.x += moveXposition();
+      scence.tilePosition.x += moveXposition();
+      break;
       case UP_ARROW:
-        move_y = -10;
-        alice.position.y += moveYposition();
-        break;
+      move_y = -10;
+      alice.position.y += moveYposition();
+      break;
       case RIGHT_ARROW:
-        move_x = 10;
-        alice.position.x += moveXposition();
-        break;
+      move_x = 10;
+      alice.position.x += moveXposition();
+      scence.tilePosition.x += moveXposition();
+      break;
       case DOWN_ARROW:
-        move_y = 10;
-        alice.position.y += moveYposition();
-        break;
+      move_y = 10;
+      alice.position.y += moveYposition();
+      break;
       case SPACE:
-        if (playerList.length != 0) {
-          createBullet();
-          gun_shot_animate();
-          gunHit();
-        }
-        break;
-    }
+      createBullet();
+      gun_shot_animate();
+      gunHit();
+      break;
+      }
+      }
   });
+
+  function move() {
+    if (alice.position.x > 0 && alice.position.x < renderer.width) { 
+      scence.tilePosition.x += move_x
+    }
+  }
 
   function appearEnemy() {
     if (enemyList.length == 0 || enemy.position.x > WIDTH) {
@@ -198,7 +182,9 @@ function onAssetsLoaded(loader, res) {
     if (enemyList.length != 0) {
       // 敵の移動処理
       for (var i = 0; i < enemyList.length; i++) {
-        enemyList[i].x += 0.1;
+        if (enemyList[i].x < HALF_WIDTH) {
+          enemyList[i].x += 1;
+        }
         if (enemyList[i].x > WIDTH) {
           stage.removeChild(enemyList[i]); // 画面から削除
           enemyList.splice(i, 1); // 配列から削除
@@ -229,7 +215,9 @@ function onAssetsLoaded(loader, res) {
   }
 
   function enemyGunShot() {
-    requestAnimationFrame(enemyGunShot);
+    if (playerList.length == 0) {
+      gameOver()
+    }
     if (enemyList.length == 0) {
       initialize(enemyBulletList);
     } else {
@@ -249,6 +237,7 @@ function onAssetsLoaded(loader, res) {
       }
     }
     renderer.render(stage);
+    requestAnimationFrame(enemyGunShot);
   }
 
   function gunHit() {
@@ -296,7 +285,7 @@ function onAssetsLoaded(loader, res) {
 
   function createBullet() {
     var bullet = new PIXI.Graphics();
-    bullet.beginFill(0x000000,0.5).drawCircle(0,0,5);
+    bullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
     bullet.x = alice.position.x;
     bullet.y = alice.position.y - 30;
     stage.addChild(bullet);
@@ -305,11 +294,25 @@ function onAssetsLoaded(loader, res) {
 
   function createEnemyBullet() {
     var enemyBullet = new PIXI.Graphics();
-    enemyBullet.beginFill(0x000000,0.5).drawCircle(0,0,5);
+    enemyBullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
     enemyBullet.x = enemy.position.x;
     enemyBullet.y = enemy.position.y - 30;
     stage.addChild(enemyBullet);
     enemyBulletList.push(enemyBullet);
+  }
+
+  function gameOver() {
+    var gameOverScene = new PIXI.Container();
+    stage.addChild(gameOverScene)
+    message = new PIXI.Text(
+         "Game Over",
+         {font: "64px Futura", fill: "black"}
+    )
+    //画面中央に表示するため、以下の係数をかけている
+    message.x = renderer.width * 0.25
+    message.y = renderer.height * 0.25
+    gameOverScene.addChild(message)
+    initialize(enemyList)
   }
 }
   requestAnimationFrame(animate);
