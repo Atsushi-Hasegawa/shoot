@@ -1,35 +1,41 @@
 
-var WIDTH    = 640;
-var HEIGHT   = 480;
-var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT);
-document.body.appendChild(renderer.view);
-
-// create the root of the scene graph
-var stage   = new PIXI.Container();
-var bg      = new PIXI.Texture.fromImage('../img/bg.jpg');
-
-scence = new PIXI.extras.TilingSprite(bg, WIDTH, HEIGHT);
-stage.addChild(scence);
-stage.interactive = true;
-
+class BackGround {
+  constructor(image) {
+    this.image    = image;
+    this.width     = 640;
+    this.height    = 480;
+    this.stage     = new PIXI.Container();
+    this._renderer = PIXI.autoDetectRenderer(this.width, this.height);
+    this.initialize();
+  }
+  initialize() {
+    document.body.appendChild(this._renderer.view);
+    var bg = new PIXI.Texture.fromImage(this.image);
+    var scence = new PIXI.extras.TilingSprite(bg, this.width, this.height);
+    this.stage.addChild(scence);
+  }
+}
 
 class PixiBase {
-  constructor(assets) {
-    this.loader = new PIXI.loaders.Loader();
+  constructor(assets, bg) {
+    this.update    = this.update.bind(this);
+    this.stage     = bg.stage;
+    this._renderer = bg._renderer;
+    this.loader    = new PIXI.loaders.Loader();
     this.loader
     .add(assets.name, assets.json);
-    this.stage = new PIXI.Container();
+    this.update();
   }
 
-  animate(method) {
-    renderer.render(stage);
-    requestAnimationFrame(method);
+  update() {
+    requestAnimationFrame(this.update);
+    this._renderer.render(this.stage);
   }
 }
 
 class Enemy extends PixiBase {
-  constructor(enemyAssets){
-    super(enemyAssets);
+  constructor(enemyAssets, bg) {
+    super(enemyAssets, bg);
     this.hp = 3;
     this.list = [];
     this.loader
@@ -40,8 +46,8 @@ class Enemy extends PixiBase {
   onAssetsLoaded(loader, res) {
     this.enemy = new PIXI.spine.Spine(res.enemy.spineData);
     this.enemy.position.x = 0;
-    this.enemy.position.y = renderer.height;
-    stage.addChild(this.enemy);
+    this.enemy.position.y = this._renderer.height;
+    this.stage.addChild(this.enemy);
     this.list.push(this.enemy);
   }
 
@@ -49,22 +55,15 @@ class Enemy extends PixiBase {
    * 自動移動する
    */
   move() {
+    requestAnimationFrame(this.move);
     for (var i = 0; i < this.list.length; i++) {
       this.list[i].position.x += 10;
-      if (this.list[i].position.x > renderer.width) {
-        stage.removeChild(this.list[i]);
+      if (this.list[i].position.x > this._renderer.width) {
+        this.stage.removeChild(this.list[i]);
         this.list.splice(i, 1);
       }
     }
-    this.animate(this.move);
-  }
-
-  /**
-   * 描画
-   */
-  animate(method) {
-    renderer.render(stage);
-    requestAnimationFrame(method);
+    this.update();
   }
 
   run() {
@@ -73,14 +72,15 @@ class Enemy extends PixiBase {
 }
 
 class Player extends PixiBase {
-  constructor(assets) {
-    super(assets);
+  constructor(assets, bg) {
+    super(assets, bg);
     this.hp      = 3;
     this.space   = 32;
     this.left    = 37;
     this.up      = 38;
     this.right   = 39;
     this.down    = 40;
+    this.bg      = bg;
     this.player;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
@@ -88,16 +88,16 @@ class Player extends PixiBase {
 
   onAssetsLoaded(loader, res) {
     this.player = new PIXI.spine.Spine(res.alice.spineData);
-    this.player.position.x = renderer.width * 0.5;
-    this.player.position.y = renderer.height;
+    this.player.position.x = this._renderer.width * 0.5;
+    this.player.position.y = this._renderer.height;
     this.player.scale.set(0.25);
-    stage.addChild(this.player);
+    this.stage.addChild(this.player);
     this.list = [this.player];
-    this.pBullet = new PlayerBullet(this.player.position);
+    this.pBullet = new PlayerBullet(this.player.position, this.bg);
   }
 
   moveXAxis(posX) {
-    if (this.player.position.x >= renderer.width - 40) { 
+    if (this.player.position.x >= this._renderer.width - 40) { 
       return (posX < 0) ? posX : 0;
     }
     if (this.player.position.x <= 40) {
@@ -107,7 +107,7 @@ class Player extends PixiBase {
   }
 
   moveYAxis(posY) {
-    if (this.player.position.y > renderer.height) { 
+    if (this.player.position.y > this._renderer.height) { 
       return (posY < 0) ? posY : 0;
     }
     if (this.player.position.y <= 40) {
@@ -142,17 +142,16 @@ class Player extends PixiBase {
 
   run() {
     this.operate();
+    this.update();
   }
 }
 
-class Input {
-}
-
 class PlayerBullet {
-  constructor(pos) {
+  constructor(pos, bg) {
     this.blist = [];
     this.pos = pos;
     this.shoot = this.shoot.bind(this);
+    this. bg = bg;
   }
 
   initialize() {
@@ -160,25 +159,19 @@ class PlayerBullet {
     bullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
     bullet.x = this.pos.x;
     bullet.y = this.pos.y - 30;
-    stage.addChild(bullet);
+    this.bg.stage.addChild(bullet);
     this.blist.push(bullet);
   }
 
   shoot() {
     requestAnimationFrame(this.shoot);
     for(var i = 0; i < this.blist.length; i++) {
-      this.blist[i].x -= 10;
+      this.blist[i].x -= 5;
       if (this.blist[i].x < 0) {
-        stage.removeChild(this.blist[i]);
+        this.bg.stage.removeChild(this.blist[i]);
         this.blist.splice(i, 1);
       }
     }
-    animate(this.shoot);
-  }
-
-  animate(method) {
-    requestAnimationFrame(method);
-    renderer.render(stage);
   }
 
   run() {
@@ -189,21 +182,19 @@ class PlayerBullet {
 //XXX: 外部入力できるようにする
 assets = {
   'name': 'alice',
-  'json': '../assets/test_for_spine.json'
+  'json': '../assets/test_for_spine.json',
 };
+
 enemyAssets = {
   'name': 'enemy',
-  'json': '../assets/test_for_spin.json'
+  'json': '../assets/test_for_spin.json',
 };
-player = new Player(assets);
-player.run();
-pBullet = new PlayerBullet(player);
-pBullet.run();
-enemy = new Enemy(enemyAssets);
-enemy.run();
-requestAnimationFrame(animate);
 
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(stage);
-}
+image = '../img/bg.jpg';
+//背景オブジェクトを作成
+bg = new BackGround(image);
+//キャラクターの作成
+player = new Player(assets, bg);
+player.run();
+enemy = new Enemy(enemyAssets, bg);
+enemy.run();
