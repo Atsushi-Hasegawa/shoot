@@ -8,6 +8,7 @@ class BackGround {
     this._renderer = PIXI.autoDetectRenderer(this.width, this.height);
     this.initialize();
   }
+
   initialize() {
     document.body.appendChild(this._renderer.view);
     var bg = new PIXI.Texture.fromImage(this.image);
@@ -36,8 +37,9 @@ class PixiBase {
 class Enemy extends PixiBase {
   constructor(enemyAssets, bg) {
     super(enemyAssets, bg);
-    this.hp = 3;
-    this.list = [];
+    this.hp    = 3;
+    this.speed = 5;
+    this.list  = [];
     this.loader
     .load(this.onAssetsLoaded.bind(this));
     this.move = this.move.bind(this);
@@ -51,18 +53,23 @@ class Enemy extends PixiBase {
     this.list.push(this.enemy);
   }
 
+  initialize(){
+    if (this.list[0] != undefined && 
+        this.list[0].position.x > this._renderer.width) {
+      this.list[0].position.x = 0;
+    }
+  }
   /**
    * 自動移動する
    */
   move() {
     requestAnimationFrame(this.move);
     for (var i = 0; i < this.list.length; i++) {
-      this.list[i].position.x += 10;
-      if (this.list[i].position.x > this._renderer.width) {
-        this.stage.removeChild(this.list[i]);
-        this.list.splice(i, 1);
+      if (this.list[i].position.x < this._renderer.width + this.enemy.width) {
+        this.list[i].position.x += this.speed;
       }
     }
+    this.initialize();
     this.update();
   }
 
@@ -179,6 +186,56 @@ class PlayerBullet {
     this.shoot();
   }
 }
+
+class EnemyBullet {
+  constructor(pos, bg) {
+    this.bg    = bg;
+    this.pos   = pos;
+    this.bList = [];
+    this.initialize(); 
+  }
+
+  initialize() {
+    var bullet = new PIXI.Graphics();
+    bullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
+    bullet.x = this.pos.x;
+    bullet.y = this.pos.y - 30;
+    this.bg.stage.addChild(bullet);
+    this.bList.push(bullet);
+  }
+
+  shoot() {
+    requestAnimationFrame(this.shoot);
+    for(var i = 0; i < this.blist.length; i++) {
+      this.blist[i].x -= 5;
+      if (this.blist[i].x < 0) {
+        this.bg.stage.removeChild(this.blist[i]);
+        this.blist.splice(i, 1);
+      }
+    }
+  }
+}
+
+class Battle {
+  constructor(player, enemy, bg) {
+    this.player = player;
+    this.enemy  = enemy;
+    this.bg     = this.bg;
+    this.hitBodyAttack.bind(this);
+  }
+
+  hitBodyAttack() {
+    requestAnimationFrame(this.histBodyAttack);
+    for(var i = 0; i < this.player.length; i++) {
+      for(var j = 0; j < this.enemy.length; j++) {
+        if (this.player[i].x == this.enemy[j].x) {
+          this.bg.stage.removeChild(this.player[i]);
+          this.player.splice(i, 1);
+        }
+      }
+    }
+  }
+}
 //XXX: 外部入力できるようにする
 assets = {
   'name': 'alice',
@@ -193,8 +250,14 @@ enemyAssets = {
 image = '../img/bg.jpg';
 //背景オブジェクトを作成
 bg = new BackGround(image);
-//キャラクターの作成
+//キャラクターの作成(敵、味方)
 player = new Player(assets, bg);
 player.run();
 enemy = new Enemy(enemyAssets, bg);
 enemy.run();
+//銃弾インスタンスを作成(敵、味方)
+//pbList = new PlayerBullet(player,bg);
+//bbList = new EnemyBullet(enemy,bg);
+//ebList = new EnemyBullet(player,bg);
+//battle = new Battle(pbList, bbList, bg);
+//console.log(battle);
