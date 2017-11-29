@@ -1,9 +1,13 @@
 
+/***
+ * must:
+ * できる限り定数管理はconstructorでするもしくは外部から渡す
+ */
 class BackGround {
   constructor(image) {
     this.image    = image;
     this.width     = 640;
-    this.height    = 480;
+    this.height    = 320;
     this.stage     = new PIXI.Container();
     this._renderer = PIXI.autoDetectRenderer(this.width, this.height);
     this.initialize();
@@ -38,8 +42,9 @@ class Enemy extends PixiBase {
   constructor(enemyAssets, bg) {
     super(enemyAssets, bg);
     this.hp    = 3;
-    this.speed = 5;
+    this.speed = 2;
     this.list  = [];
+    this.bg    = bg;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
     this.move = this.move.bind(this);
@@ -49,8 +54,11 @@ class Enemy extends PixiBase {
     this.enemy = new PIXI.spine.Spine(res.enemy.spineData);
     this.enemy.position.x = 0;
     this.enemy.position.y = this._renderer.height;
+    this.enemy.scale.set(0.75);
     this.stage.addChild(this.enemy);
     this.list.push(this.enemy);
+    this.bBullet = new EnemyBullet(this.enemy.position, this.bg);
+    //this.bBullet.run();
   }
 
   initialize(){
@@ -59,6 +67,7 @@ class Enemy extends PixiBase {
       this.list[0].position.x = 0;
     }
   }
+
   /**
    * 自動移動する
    */
@@ -70,11 +79,15 @@ class Enemy extends PixiBase {
       }
     }
     this.initialize();
-    this.update();
+  }
+
+  getPlayer() {
+    return this.list;
   }
 
   run() {
     this.move();
+    this.update();
   }
 }
 
@@ -88,6 +101,7 @@ class Player extends PixiBase {
     this.right   = 39;
     this.down    = 40;
     this.bg      = bg;
+    this.list    = [];
     this.player;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
@@ -99,44 +113,51 @@ class Player extends PixiBase {
     this.player.position.y = this._renderer.height;
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
-    this.list = [this.player];
+    this.list.push(this.player);
     this.pBullet = new PlayerBullet(this.player.position, this.bg);
   }
 
-  moveXAxis(posX) {
-    if (this.player.position.x >= this._renderer.width - 40) { 
-      return (posX < 0) ? posX : 0;
+  moveX(x) {
+    if (this.player.position.x >= this._renderer.width - 40) {
+      return (x < 0) ? x : 0;
     }
-    if (this.player.position.x <= 40) {
-      return (posX < 0) ? 0 : posX;
+    if (this.player.position.x <= this.player.width) {
+      return (x < 0) ? 0 : x;
     }
-    return posX;
+    return x;
   }
 
-  moveYAxis(posY) {
+  moveY(y) {
     if (this.player.position.y > this._renderer.height) { 
-      return (posY < 0) ? posY : 0;
+      y = (y < 0) ? y : 0;
     }
-    if (this.player.position.y <= 40) {
-      return (posY < 0) ? 0 : posY;
+    if (this.player.position.y <= this.player.height) {
+      y = (y < 0) ? 0 : y;
     }
-    return posY;
+    return y;
+  }
+
+  addMove(x, y) {
+    this.player.position.x += this.moveX(x);
+    this.player.position.y += this.moveY(y);
   }
 
   operate() {
     $(window).keydown(function(event) {
+      var x = 0;
+      var y = 0;
       switch(event.keyCode) {
         case this.player.left:
-          this.player.player.position.x += this.player.moveXAxis(-10);
+          x = -10
           break;
         case this.player.right:
-          this.player.player.position.x += this.player.moveXAxis(10);
+          x = 10;
           break;
         case this.player.up:
-          this.player.player.position.y += this.player.moveYAxis(-10);
+          y = -10;
           break;
         case this.player.down:
-          this.player.player.position.y += this.player.moveYAxis(10);
+          y = 10;
           break;
         case this.player.space:
           this.player.pBullet.run();
@@ -144,7 +165,12 @@ class Player extends PixiBase {
         default:
           break;
       }
+      this.player.addMove(x, y);
     });
+  }
+
+  getPlayer() {
+    return this.list;
   }
 
   run() {
@@ -156,9 +182,10 @@ class Player extends PixiBase {
 class PlayerBullet {
   constructor(pos, bg) {
     this.blist = [];
-    this.pos = pos;
+    this.pos   = pos;
+    this.spped = 5;
     this.shoot = this.shoot.bind(this);
-    this. bg = bg;
+    this.bg    = bg;
   }
 
   initialize() {
@@ -173,7 +200,7 @@ class PlayerBullet {
   shoot() {
     requestAnimationFrame(this.shoot);
     for(var i = 0; i < this.blist.length; i++) {
-      this.blist[i].x -= 5;
+      this.blist[i].x -= this.speed;
       if (this.blist[i].x < 0) {
         this.bg.stage.removeChild(this.blist[i]);
         this.blist.splice(i, 1);
@@ -192,7 +219,7 @@ class EnemyBullet {
     this.bg    = bg;
     this.pos   = pos;
     this.bList = [];
-    this.initialize(); 
+    this.shoot = this.shoot.bind(this);
   }
 
   initialize() {
@@ -206,34 +233,49 @@ class EnemyBullet {
 
   shoot() {
     requestAnimationFrame(this.shoot);
-    for(var i = 0; i < this.blist.length; i++) {
-      this.blist[i].x -= 5;
-      if (this.blist[i].x < 0) {
-        this.bg.stage.removeChild(this.blist[i]);
-        this.blist.splice(i, 1);
+    for(var i = 0; i < this.bList.length; i++) {
+      this.bList[i].x += 10;
+      if (this.bList[i].x > this.bg._renderer.width) {
+        this.bg.stage.removeChild(this.bList[i]);
+        this.bList.splice(i, 1);
       }
     }
+    if (this.bList.length == 0) this.initialize();
+    this.bg._renderer.render(this.bg.stage);
+  }
+
+  run() {
+    this.initialize();
+    this.shoot();
   }
 }
 
 class Battle {
-  constructor(player, enemy, bg) {
+  constructor(player, enemy, hp, bg) {
     this.player = player;
     this.enemy  = enemy;
-    this.bg     = this.bg;
-    this.hitBodyAttack.bind(this);
+    this.bg     = bg;
+    this.hp     = hp;
+    this.attack = this.attack.bind(this);
   }
 
-  hitBodyAttack() {
-    requestAnimationFrame(this.histBodyAttack);
+  attack() {
+    requestAnimationFrame(this.attack);
     for(var i = 0; i < this.player.length; i++) {
       for(var j = 0; j < this.enemy.length; j++) {
-        if (this.player[i].x == this.enemy[j].x) {
-          this.bg.stage.removeChild(this.player[i]);
-          this.player.splice(i, 1);
+        if (this.player[i].x == this.enemy[j].x && this.enemy[j].y - this.player[i].y < this.enemy[j].height) {
+          this.addDamage();
+          if (this.hp < 0) {
+            this.bg.stage.removeChild(this.player[i]);
+            this.player.splice(i, 1);
+          }
         }
       }
     }
+  }
+
+  addDamage() {
+    this.hp--;
   }
 }
 //XXX: 外部入力できるようにする
@@ -255,9 +297,9 @@ player = new Player(assets, bg);
 player.run();
 enemy = new Enemy(enemyAssets, bg);
 enemy.run();
-//銃弾インスタンスを作成(敵、味方)
-//pbList = new PlayerBullet(player,bg);
-//bbList = new EnemyBullet(enemy,bg);
-//ebList = new EnemyBullet(player,bg);
-//battle = new Battle(pbList, bbList, bg);
-//console.log(battle);
+pList = player.getPlayer();
+eList = enemy.getPlayer();
+//バトル(敵->味方)
+battle = new Battle(pList, eList, player.hp, bg);
+battle.attack();
+//バトル(味方->敵)
