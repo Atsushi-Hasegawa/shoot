@@ -41,10 +41,13 @@ class PixiBase {
 class Enemy extends PixiBase {
   constructor(enemyAssets, bg) {
     super(enemyAssets, bg);
-    this.hp    = 3;
-    this.speed = 2;
-    this.list  = [];
-    this.bg    = bg;
+    this.hp     = 1;
+    this.speed  = 2;
+    this.bspeed = 5;
+    this.list   = [];
+    this.bg     = bg;
+    this.enemy;
+    this.ebullet;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
     this.move = this.move.bind(this);
@@ -57,8 +60,8 @@ class Enemy extends PixiBase {
     this.enemy.scale.set(0.75);
     this.stage.addChild(this.enemy);
     this.list.push(this.enemy);
-    this.bBullet = new EnemyBullet(this.enemy.position, this.bg);
-    //this.bBullet.run();
+    this.ebullet = new Bullet(this.enemy.position, this.bg, this.bspeed);
+    this.ebullet.shoot();
   }
 
   initialize(){
@@ -94,7 +97,8 @@ class Enemy extends PixiBase {
 class Player extends PixiBase {
   constructor(assets, bg) {
     super(assets, bg);
-    this.hp      = 3;
+    this.hp      = 1;
+    this.bspeed  = -5;
     this.space   = 32;
     this.left    = 37;
     this.up      = 38;
@@ -114,7 +118,7 @@ class Player extends PixiBase {
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
     this.list.push(this.player);
-    this.pBullet = new PlayerBullet(this.player.position, this.bg);
+    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
   }
 
   moveX(x) {
@@ -160,7 +164,7 @@ class Player extends PixiBase {
           y = 10;
           break;
         case this.player.space:
-          this.player.pBullet.run();
+          this.player.pbullet.run();
           break;
         default:
           break;
@@ -179,46 +183,12 @@ class Player extends PixiBase {
   }
 }
 
-class PlayerBullet {
-  constructor(pos, bg) {
-    this.blist = [];
-    this.pos   = pos;
-    this.spped = 5;
-    this.shoot = this.shoot.bind(this);
-    this.bg    = bg;
-  }
-
-  initialize() {
-    var bullet = new PIXI.Graphics();
-    bullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
-    bullet.x = this.pos.x;
-    bullet.y = this.pos.y - 30;
-    this.bg.stage.addChild(bullet);
-    this.blist.push(bullet);
-  }
-
-  shoot() {
-    requestAnimationFrame(this.shoot);
-    for(var i = 0; i < this.blist.length; i++) {
-      this.blist[i].x -= this.speed;
-      if (this.blist[i].x < 0) {
-        this.bg.stage.removeChild(this.blist[i]);
-        this.blist.splice(i, 1);
-      }
-    }
-  }
-
-  run() {
-    this.initialize();
-    this.shoot();
-  }
-}
-
-class EnemyBullet {
-  constructor(pos, bg) {
+class Bullet {
+  constructor(pos, bg, speed) {
     this.bg    = bg;
     this.pos   = pos;
     this.bList = [];
+    this.speed = speed;
     this.shoot = this.shoot.bind(this);
   }
 
@@ -234,14 +204,13 @@ class EnemyBullet {
   shoot() {
     requestAnimationFrame(this.shoot);
     for(var i = 0; i < this.bList.length; i++) {
-      this.bList[i].x += 10;
+      this.bList[i].x += this.speed;
       if (this.bList[i].x > this.bg._renderer.width) {
         this.bg.stage.removeChild(this.bList[i]);
         this.bList.splice(i, 1);
       }
     }
     if (this.bList.length == 0) this.initialize();
-    this.bg._renderer.render(this.bg.stage);
   }
 
   run() {
@@ -260,14 +229,15 @@ class Battle {
   }
 
   attack() {
-    requestAnimationFrame(this.attack);
+    var id = requestAnimationFrame(this.attack);
     for(var i = 0; i < this.player.length; i++) {
       for(var j = 0; j < this.enemy.length; j++) {
-        if (this.player[i].x == this.enemy[j].x && this.enemy[j].y - this.player[i].y < this.enemy[j].height) {
+        if (this.player[i].x == this.enemy[j].x && Math.abs(this.enemy[j].y - this.player[i].y) < this.enemy[j].height) {
           this.addDamage();
           if (this.hp < 0) {
             this.bg.stage.removeChild(this.player[i]);
             this.player.splice(i, 1);
+            cancelAnimationFrame(id);
           }
         }
       }
@@ -277,7 +247,9 @@ class Battle {
   addDamage() {
     this.hp--;
   }
+
 }
+
 //XXX: 外部入力できるようにする
 assets = {
   'name': 'alice',
@@ -297,9 +269,8 @@ player = new Player(assets, bg);
 player.run();
 enemy = new Enemy(enemyAssets, bg);
 enemy.run();
+//アタックする(体当たり)
 pList = player.getPlayer();
 eList = enemy.getPlayer();
-//バトル(敵->味方)
-battle = new Battle(pList, eList, player.hp, bg);
+battle = new Battle(pList, eList, player.hp, bg)
 battle.attack();
-//バトル(味方->敵)
