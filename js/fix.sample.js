@@ -232,7 +232,7 @@ class Battle {
     var id = requestAnimationFrame(this.attack);
     for(var i = 0; i < this.player.length; i++) {
       for(var j = 0; j < this.enemy.length; j++) {
-        if (this.player[i].x == this.enemy[j].x && Math.abs(this.enemy[j].y - this.player[i].y) < this.enemy[j].height) {
+        if (this.isHit(this.player[i],this.enemy[j])) {
           this.addDamage();
           if (this.hp < 0) {
             this.bg.stage.removeChild(this.player[i]);
@@ -242,6 +242,13 @@ class Battle {
         }
       }
     }
+  }
+
+  isHit(player, enemy) {
+    if (player.x == enemy.x && Math.abs(player.y - enemy.y) < enemy.height) {
+      return true;
+    }
+    return false;
   }
 
   addDamage() {
