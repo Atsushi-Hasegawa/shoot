@@ -19,6 +19,7 @@ class BackGround {
     var scence = new PIXI.extras.TilingSprite(bg, this.width, this.height);
     this.stage.addChild(scence);
   }
+
 }
 
 class PixiBase {
@@ -107,6 +108,7 @@ class Player extends PixiBase {
     this.bg      = bg;
     this.list    = [];
     this.player;
+    this.shoot   = this.shoot.bind(this);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
   }
@@ -118,7 +120,7 @@ class Player extends PixiBase {
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
     this.list.push(this.player);
-    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
+    //this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
   }
 
   moveX(x) {
@@ -164,13 +166,18 @@ class Player extends PixiBase {
           y = 10;
           break;
         case this.player.space:
-          this.player.pbullet.run();
+          this.player.shoot();
           break;
         default:
           break;
       }
       this.player.addMove(x, y);
     });
+  }
+
+  shoot() {
+    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
+    this.pbullet.run();
   }
 
   getPlayer() {
