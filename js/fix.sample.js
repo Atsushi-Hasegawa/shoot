@@ -147,7 +147,6 @@ class Player extends PixiBase {
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
     this.list.push(this.player);
-    //this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
   }
 
   moveX(x) {
