@@ -1,0 +1,83 @@
+
+test_for_spin.png
+size: 512,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+L_arm
+  rotate: false
+  xy: 342, 45
+  size: 44, 65
+  orig: 44, 65
+  offset: 0, 0
+  index: -1
+L_leg
+  rotate: false
+  xy: 99, 6
+  size: 35, 56
+  orig: 35, 56
+  offset: 0, 0
+  index: -1
+R_arm
+  rotate: false
+  xy: 136, 6
+  size: 68, 36
+  orig: 68, 36
+  offset: 0, 0
+  index: -1
+R_leg
+  rotate: false
+  xy: 2, 64
+  size: 141, 189
+  orig: 141, 189
+  offset: 0, 0
+  index: -1
+back_hear
+  rotate: true
+  xy: 145, 44
+  size: 80, 114
+  orig: 80, 114
+  offset: 0, 0
+  index: -1
+body
+  rotate: true
+  xy: 261, 33
+  size: 77, 79
+  orig: 77, 79
+  offset: 0, 0
+  index: -1
+front_hear_01
+  rotate: false
+  xy: 145, 126
+  size: 141, 127
+  orig: 141, 127
+  offset: 0, 0
+  index: -1
+front_hear_02
+  rotate: true
+  xy: 398, 172
+  size: 81, 107
+  orig: 81, 107
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 288, 147
+  size: 108, 106
+  orig: 108, 106
+  offset: 0, 0
+  index: -1
+hear_band
+  rotate: false
+  xy: 288, 112
+  size: 116, 33
+  orig: 116, 33
+  offset: 0, 0
+  index: -1
+wand
+  rotate: true
+  xy: 2, 2
+  size: 60, 95
+  orig: 60, 95
+  offset: 0, 0
+  index: -1
