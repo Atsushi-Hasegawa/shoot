@@ -31,18 +31,17 @@ class BackGround {
   move() {
     requestAnimationFrame(this.move);
     this.position += 2;
-    this.fg1.x = -this.position;
+
+    this.fg1.x  = -this.position;
     this.fg1.x %= this.width * 4;
-    if(this.fg1.x < 0)
-    {
+    if(this.fg1.x < 0) {
       this.fg1.x += this.width * 4;
     }
     this.fg1.x -= this.width * 2;
 
-    this.fg2.x = -this.position + this.width * 2;
+    this.fg2.x  = -this.position + this.width * 2;
     this.fg2.x %= this.width * 4;
-    if(this.fg2.x < 0)
-    {
+    if(this.fg2.x < 0) {
       this.fg2.x += this.width * 4;
     }
     this.fg2.x -= this.width * 2;
