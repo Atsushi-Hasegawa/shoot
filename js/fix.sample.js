@@ -47,6 +47,10 @@ class BackGround {
     this.fg2.x -= this.width * 2;
   }
 
+  update() {
+    requestAnimationFrame(this.update);
+    this._renderer.render(this.stage);
+  }
 }
 
 class PixiBase {
@@ -132,10 +136,11 @@ class Player extends PixiBase {
     this.up      = 38;
     this.right   = 39;
     this.down    = 40;
+    this.code    = 0;
     this.bg      = bg;
     this.list    = [];
     this.pbList  = [];
-    this.player;
+    this.player  = undefined;
     this.shoot   = this.shoot.bind(this);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
@@ -148,8 +153,6 @@ class Player extends PixiBase {
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
     this.list.push(this.player);
-    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
-    this.pbList.push(this.pbullet);
   }
 
   moveX(x) {
@@ -177,36 +180,9 @@ class Player extends PixiBase {
     this.player.position.y += this.moveY(y);
   }
 
-  operate() {
-    $(window).keydown(function(event) {
-      var x = 0;
-      var y = 0;
-      switch(event.keyCode) {
-        case this.player.left:
-          x = -10
-          break;
-        case this.player.right:
-          x = 10;
-          break;
-        case this.player.up:
-          y = -10;
-          break;
-        case this.player.down:
-          y = 10;
-          break;
-        case this.player.space:
-          this.player.shoot();
-          break;
-        default:
-          break;
-      }
-      this.player.addMove(x, y);
-    });
-  }
-
   shoot() {
     this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
-    this.pbullet.run();
+    //this.pbullet.run();
   }
 
   getPlayer() {
@@ -217,8 +193,36 @@ class Player extends PixiBase {
     return this.pbList;
   }
 
+  onkeyDown(e) {
+    var x = 0, y = 0;
+    switch(e.keyCode) {
+      case this.left:
+        x = -10;
+        break;
+      case this.right:
+        x = 10;
+        break;
+      case this.down:
+        y = 10;
+        break;
+      case this.up:
+        y = -10;
+        break;
+      case this.space:
+        this.shoot();
+        break;
+      default:
+        this.code = e.keyCode;
+        break;
+    }
+    //十字のみ移動実行
+    if (x != 0 || y != 0) {
+      this.addMove(x,y);
+    }
+  }
+
   run() {
-    this.operate();
+    $(window).on("keydown", this.onkeyDown.bind(this));
     this.update();
   }
 }
@@ -229,16 +233,16 @@ class Bullet {
     this.pos   = pos;
     this.bList = [];
     this.speed = speed;
-    this.initialize();
     this.shoot = this.shoot.bind(this);
+    this.bullet;
   }
 
   initialize() {
     var bullet = new PIXI.Graphics();
     bullet.beginFill(0xFFFFFF,0.5).drawCircle(0,0,5);
-    bullet.x = this.pos.x;
-    bullet.y = this.pos.y - 30;
-    this.bg.stage.addChild(bullet);
+    bullet.x    = this.pos.x;
+    bullet.y    = this.pos.y - 30;
+    this.bullet = bullet;
     this.bList.push(bullet);
   }
 
@@ -253,10 +257,6 @@ class Bullet {
       }
     }
     if (this.bList.length == 0) this.initialize();
-  }
-
-  getList() {
-    return this.bList;
   }
 
   run() {
