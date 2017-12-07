@@ -88,8 +88,8 @@ class Enemy extends PixiBase {
     this.enemy.scale.set(0.75);
     this.stage.addChild(this.enemy);
     this.list.push(this.enemy);
-    this.ebullet = new Bullet(this.enemy.position, this.bg, this.bspeed);
-    this.ebullet.shoot();
+    //this.ebullet = new Bullet(this.enemy.position, this.bg, this.bspeed);
+    //this.ebullet.shoot();
   }
 
   initialize(){
@@ -104,9 +104,9 @@ class Enemy extends PixiBase {
    */
   move() {
     requestAnimationFrame(this.move);
-    for (var i = 0; i < this.list.length; i++) {
-      if (this.list[i].position.x < this._renderer.width + this.enemy.width) {
-        this.list[i].position.x += this.speed;
+    for (let list of this.list) {
+      if (list.position.x < this._renderer.width + this.enemy.width) {
+        list.position.x += this.speed;
       }
     }
     this.initialize();
@@ -134,6 +134,7 @@ class Player extends PixiBase {
     this.down    = 40;
     this.bg      = bg;
     this.list    = [];
+    this.pbList  = [];
     this.player;
     this.shoot   = this.shoot.bind(this);
     this.loader
@@ -147,6 +148,8 @@ class Player extends PixiBase {
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
     this.list.push(this.player);
+    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
+    this.pbList.push(this.pbullet);
   }
 
   moveX(x) {
@@ -210,6 +213,10 @@ class Player extends PixiBase {
     return this.list;
   }
 
+  getBullet() {
+    return this.pbList;
+  }
+
   run() {
     this.operate();
     this.update();
@@ -222,6 +229,7 @@ class Bullet {
     this.pos   = pos;
     this.bList = [];
     this.speed = speed;
+    this.initialize();
     this.shoot = this.shoot.bind(this);
   }
 
@@ -236,14 +244,19 @@ class Bullet {
 
   shoot() {
     requestAnimationFrame(this.shoot);
-    for(var i = 0; i < this.bList.length; i++) {
-      this.bList[i].x += this.speed;
-      if (this.bList[i].x > this.bg._renderer.width) {
-        this.bg.stage.removeChild(this.bList[i]);
-        this.bList.splice(i, 1);
+    for(let bList of this.bList) {
+      bList.x += this.speed;
+      if (bList.x > this.bg._renderer.width) {
+        this.bg.stage.removeChild(bList);
+        bList.splice;
+        break;
       }
     }
     if (this.bList.length == 0) this.initialize();
+  }
+
+  getList() {
+    return this.bList;
   }
 
   run() {
@@ -263,14 +276,14 @@ class Battle {
 
   attack() {
     var id = requestAnimationFrame(this.attack);
-    for(var i = 0; i < this.player.length; i++) {
-      for(var j = 0; j < this.enemy.length; j++) {
-        if (this.isHit(this.player[i],this.enemy[j])) {
+    for(let player of this.player) {
+      for(let enemy of this.enemy) {
+        if (this.isHit(player,enemy)) {
           this.addDamage();
           if (this.hp < 0) {
-            this.bg.stage.removeChild(this.player[i]);
-            this.player.splice(i, 1);
-            cancelAnimationFrame(id);
+            this.bg.stage.removeChild(player);
+            player.splice;
+            break;
           }
         }
       }
@@ -301,6 +314,7 @@ enemyAssets = {
   'json': '../assets/test_for_spin.json',
 };
 
+//xxx: ステージごとに切り替えるように改修
 image = '../img/stage/1.jpg';
 //背景オブジェクトを作成
 bg = new BackGround(image);
@@ -310,7 +324,7 @@ player.run();
 enemy = new Enemy(enemyAssets, bg);
 enemy.run();
 //アタックする(体当たり)
-pList = player.getPlayer();
-eList = enemy.getPlayer();
-battle = new Battle(pList, eList, player.hp, bg)
+pList  = player.getPlayer();
+eList  = enemy.getPlayer();
+battle = new Battle(pList, eList, player.hp, bg);
 battle.attack();
