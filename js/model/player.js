@@ -1,15 +1,19 @@
-
 class Player extends PixiBase {
   constructor(assets, bg) {
     super(assets, bg);
-    this.hp      = 3;
+    this.hp      = 1;
+    this.bspeed  = -5;
     this.space   = 32;
     this.left    = 37;
     this.up      = 38;
     this.right   = 39;
     this.down    = 40;
+    this.code    = 0;
     this.bg      = bg;
-    this.player;
+    this.list    = [];
+    this.pbList  = [];
+    this.player  = undefined;
+    this.shoot   = this.shoot.bind(this);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
   }
@@ -20,57 +24,73 @@ class Player extends PixiBase {
     this.player.position.y = this._renderer.height;
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
-    this.list = [this.player];
-    this.pBullet = new PlayerBullet(this.player.position, this.bg);
+    this.list.push(this.player);
   }
 
-  moveXAxis(posX) {
-    if (this.player.position.x >= this._renderer.width - 40) { 
-      return (posX < 0) ? posX : 0;
+  moveX(x) {
+    if (this.player.position.x >= this._renderer.width - 40) {
+      return (x < 0) ? x : 0;
     }
-    if (this.player.position.x <= 40) {
-      return (posX < 0) ? 0 : posX;
+    if (this.player.position.x <= this.player.width) {
+      return (x < 0) ? 0 : x;
     }
-    return posX;
+    return x;
   }
 
-  moveYAxis(posY) {
+  moveY(y) {
     if (this.player.position.y > this._renderer.height) { 
-      return (posY < 0) ? posY : 0;
+      y = (y < 0) ? y : 0;
     }
-    if (this.player.position.y <= 40) {
-      return (posY < 0) ? 0 : posY;
+    if (this.player.position.y <= this.player.height) {
+      y = (y < 0) ? 0 : y;
     }
-    return posY;
+    return y;
   }
 
-  operate() {
-    $(window).keydown(function(event) {
-      switch(event.keyCode) {
-        case this.player.left:
-          this.player.player.position.x += this.player.moveXAxis(-10);
-          break;
-        case this.player.right:
-          this.player.player.position.x += this.player.moveXAxis(10);
-          break;
-        case this.player.up:
-          this.player.player.position.y += this.player.moveYAxis(-10);
-          break;
-        case this.player.down:
-          this.player.player.position.y += this.player.moveYAxis(10);
-          break;
-        case this.player.space:
-          this.player.pBullet.run();
-          break;
-        default:
-          break;
-      }
-    });
+  addMove(x, y) {
+    this.player.position.x += this.moveX(x);
+    this.player.position.y += this.moveY(y);
+  }
+
+  shoot() {
+    this.pbullet = new Bullet(this.player.position, this.bg, this.bspeed);
+    this.pbullet.run();
+  }
+
+  getPlayer() {
+    return this.list;
+  }
+
+  onkeyDown(e) {
+    var x = 0, y = 0;
+    switch(e.keyCode) {
+      case this.left:
+        x = -10;
+        break;
+      case this.right:
+        x = 10;
+        break;
+      case this.down:
+        y = 10;
+        break;
+      case this.up:
+        y = -10;
+        break;
+      case this.space:
+        this.shoot();
+        break;
+      default:
+        this.code = e.keyCode;
+        break;
+    }
+    //十字のみ移動実行
+    if (x != 0 || y != 0) {
+      this.addMove(x,y);
+    }
   }
 
   run() {
-    this.operate();
+    $(window).on("keydown", this.onkeyDown.bind(this));
     this.update();
   }
 }
-

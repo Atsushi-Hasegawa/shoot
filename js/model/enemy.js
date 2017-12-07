@@ -1,10 +1,13 @@
 class Enemy extends PixiBase {
   constructor(enemyAssets, bg) {
     super(enemyAssets, bg);
-    this.hp    = 3;
-    this.speed = 5;
-    this.list  = [];
-    this.bg    = bg;
+    this.hp     = 1;
+    this.speed  = 2;
+    this.bspeed = 5;
+    this.list   = [];
+    this.bg     = bg;
+    this.enemy;
+    this.ebullet;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
     this.move = this.move.bind(this);
@@ -17,8 +20,8 @@ class Enemy extends PixiBase {
     this.enemy.scale.set(0.75);
     this.stage.addChild(this.enemy);
     this.list.push(this.enemy);
-    this.bBullet = new EnemyBullet(this.enemy.position, this.bg);
-    this.bBullet.run();
+    //this.ebullet = new Bullet(this.enemy.position, this.bg, this.bspeed);
+    //this.ebullet.shoot();
   }
 
   initialize(){
@@ -28,17 +31,18 @@ class Enemy extends PixiBase {
     }
   }
 
-  /**
-   * 自動移動する
-   */
   move() {
     requestAnimationFrame(this.move);
-    for (var i = 0; i < this.list.length; i++) {
-      if (this.list[i].position.x < this._renderer.width + this.enemy.width) {
-        this.list[i].position.x += this.speed;
+    for (let list of this.list) {
+      if (list.position.x < this._renderer.width + this.enemy.width) {
+        list.position.x += this.speed;
       }
     }
     this.initialize();
+  }
+
+  getPlayer() {
+    return this.list;
   }
 
   run() {
@@ -46,4 +50,3 @@ class Enemy extends PixiBase {
     this.update();
   }
 }
-
