@@ -1,9 +1,8 @@
 class Player extends PixiBase {
   constructor(assets, bg) {
     super(assets, bg);
-    this.list    = [];
     this.player  = undefined;
-    this.isAlive  = null;
+    this.isAlive = null;
     this.isHit   = null;
     this.loader
     .load(this.onAssetsLoaded.bind(this));
@@ -16,7 +15,6 @@ class Player extends PixiBase {
     this.player.position.y = this._renderer.height;
     this.player.scale.set(0.25);
     this.stage.addChild(this.player);
-    this.list.push(this.player);
   }
 
   init() {
@@ -24,16 +22,24 @@ class Player extends PixiBase {
     this.isHit  = false;
   }
 
-  getIsAlive() {
+  setFire() {
+    if (!this.isAlive) return;
+  }
+
+  getAlive() {
     return this.isAlive;
   }
 
-  getIsHit() {
+  getHit() {
     return this.isHit;
   }
 
+  remove() {
+    this.stage.removeChild(this.player);
+  }
+
   hit() {
-    this.isLive = false;
+    this.isAlive = false;
   }
 
   move(pos) {
