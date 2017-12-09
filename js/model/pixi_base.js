@@ -6,6 +6,7 @@ class PixiBase {
     this.loader    = new PIXI.loaders.Loader();
     this.loader
     .add(assets.name, assets.json);
+    this.stage.interactive = true;
     this.update();
   }
 
@@ -14,4 +15,3 @@ class PixiBase {
     this._renderer.render(this.stage);
   }
 }
-
