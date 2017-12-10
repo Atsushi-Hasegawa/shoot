@@ -1,7 +1,7 @@
 class Player extends PixiBase {
   constructor(assets, bg) {
     super(assets, bg);
-    this.player  = undefined;
+    this.player  = null;
     this.isAlive = null;
     this.isHit   = null;
     this.loader
@@ -34,12 +34,21 @@ class Player extends PixiBase {
     return this.isHit;
   }
 
-  remove() {
-    this.stage.removeChild(this.player);
+  getMovieClip() {
+    return this.player;
+  }
+
+  getHeight() {
+    return this.player.height;
   }
 
   hit() {
     this.isAlive = false;
+  }
+
+  remove() {
+    if (this.getAlive()) return;
+    this.stage.removeChild(this.player);
   }
 
   move(pos) {
