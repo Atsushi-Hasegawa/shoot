@@ -45,14 +45,21 @@ class Game {
       this.key[i] = false;
     }
   }
-
+  replayGame() {
+    this.player  = new Player(this.assets.player, this.bg);
+    this.playerX = this.bg._renderer.width * 0.5;
+    this.playerY = this.bg._renderer.height;
+    this.frameCount = 0;
+  }
   start() {
     this.onEnterFrame();
     $(window).on("keydown", this.onkeyDown.bind(this));
   }
-
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
+    if (!this.player.getAlive()) {
+      this.replayGame();
+    }
     if (this.tmp != this.code) {
       this.resetKey(this.tmp);
       this.tmp = this.code;
@@ -68,11 +75,11 @@ class Game {
     if (this.key.isDOWN) this.moveDown();
     // 敵のアタリ判定
     for (let shot of this._shots) {
-      if (!shot || shot.isHit || !shot.target) continue;
+      var shotMc  = shot.target.getMovieClip();
+      if (!shot || !shotMc | shot.isHit || !shot.target) continue;
       for (let enemy of this._enemies) {
         if (!enemy || enemy.isHit || !enemy.target) continue;
         var enemyMc = enemy.target;
-        var shotMc  = shot.target.getMovieClip();
         if (enemyMc.hitTest(shotMc.x, shotMc.y)) {
           this.hitEnemy({
             enemyId: enemy.id,
@@ -92,6 +99,7 @@ class Game {
       for(let enemy of this._enemies) {
         if (!enemy || enemy.isHit || !enemy.target) continue;
         var playerMc = this.player.getMovieClip();
+        if (!playerMc) continue;
         var enemyMc  = enemy.target;
         if (enemyMc.hitTest(playerMc.x, playerMc.y)) {
           enemyMc.hit();
@@ -101,8 +109,19 @@ class Game {
         }
       }
     }
+    this.reloadEnemyPos();
   }
 
+  reloadEnemyPos() {
+    if (!this._enemies) return;
+    for(let enemy of this._enemies) {
+      var enemyMc = enemy.target.getMovieClip();
+      if (!enemy || !enemyMc || enemy.isHit || !enemy.target) continue;
+      if (enemyMc.x >= this.bg._renderer.width) {
+        enemyMc.x = 10;
+      }
+    }
+  }
   hitEnemy(params) {
     var enemyId = params['enemyId'];
     var shotId  = params['shotId'];

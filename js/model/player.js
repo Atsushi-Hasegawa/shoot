@@ -39,6 +39,7 @@ class Player extends PixiBase {
   }
 
   getHeight() {
+    if (!this.player) return;
     return this.player.height;
   }
 
@@ -52,7 +53,7 @@ class Player extends PixiBase {
   }
 
   move(pos) {
-    if (!this.isAlive) return;
+    if (!this.isAlive || !this.player) return;
     if (pos.x) this.player.x = pos.x;
     if (pos.y) this.player.y = pos.y;
   }
