@@ -1,10 +1,13 @@
 class Enemy extends PixiBase {
-  constructor(assets, bg) {
+  constructor(assets, bg, id) {
     super(assets, bg);
-    this.enemy   = undefined;
+    this.id      = id;
+    this.speed   = 1;
+    this.enemy   = null;
     this.isAlive = null;
     this.isHit   = null;
-    this.move = this.move.bind(this);
+    this.move    = this.move.bind(this);
+    this.execute = this.execute.bind(this);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
     this.init();
@@ -12,7 +15,7 @@ class Enemy extends PixiBase {
 
   onAssetsLoaded(loader, res) {
     this.enemy = new PIXI.spine.Spine(res.enemy.spineData);
-    this.enemy.position.x = 0;
+    this.enemy.position.x = 10;
     this.enemy.position.y = this._renderer.height;
     this.enemy.scale.set(0.75);
     this.stage.addChild(this.enemy);
@@ -23,6 +26,10 @@ class Enemy extends PixiBase {
     this.isHit   = false;
   }
 
+  getId() {
+    return this.id;
+  }
+
   getAlive() {
     return this.isAlive;
   }
@@ -30,14 +37,39 @@ class Enemy extends PixiBase {
   getHit() {
     return this.isHit;
   }
+  getMovieClip() {
+    return this.enemy;
+  }
+
   hit() {
     this.isAlive = false;
   }
+
   remove() {
     this.stage.removeChild(this.enemy);
   }
+
   move(pos) {
     if (!this.isAlive || !this.enemy) return;
     if (pos.x) this.enemy.x = pos.x;
+  }
+
+  hitTest(x, y) {
+    if (!this.enemy) return;
+    return this.enemy.x == x && Math.abs(this.enemy.y - y) < this.enemy.height;
+  }
+
+  execute() {
+    requestAnimationFrame(this.execute);
+    if (!this.enemy) return;
+    var pos = this.enemy.x + this.speed;
+    if (pos < this._renderer.width + this.enemy.width) {
+      this.enemy.x = pos;
+    } else {
+      this.remove();
+    }
+  }
+  main() {
+    this.execute();
   }
 }
