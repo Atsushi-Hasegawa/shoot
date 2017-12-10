@@ -2,7 +2,7 @@
 class Stage {
   constructor(image) {
     this.image    = image;
-    this.width     = 640;
+    this.width     = 600;
     this.height    = 320;
     this.position  = 0;
     this.stage     = new PIXI.Container();
