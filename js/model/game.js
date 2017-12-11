@@ -9,7 +9,6 @@ class Game {
     this.listener  = [];
     this.enemyCount= null;
     this.shotCount = null;
-    this.timeCount = 0;
     this.tmp       = null;
     this.image     = assets.image;
     this.assets    = assets;
@@ -42,7 +41,6 @@ class Game {
     this.enemyX  = 0;
     this.shotCount  = 0;
     this.enemyCount = 0;
-    this.timerCount = 0;
     this.frameCount = 0;
     for(var i = 0; i < 2; i++) {
       this.addEnemy();
@@ -52,6 +50,13 @@ class Game {
     }
   }
 
+  removePlayer() {
+    this.player.remove();
+    this.player = null;
+    this.dispatcher({
+      type: "REPLAY_GAME"
+    });
+  }
   replayGame() {
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
@@ -67,6 +72,67 @@ class Game {
       type: "ADD_ENEMY",
       callback: function() {
         _this.addEnemy()
+      }
+    });
+    this.addListener({
+      type: "REMOVE_ENEMY",
+      callback: function(evt) {
+        _this.removeEnemy({
+          targetId: evt["targetId"]
+        })
+      }
+    });
+    this.addListener({
+      type: "FIRE_ENEMY",
+      callback: function(evt) {
+        _this.fireEnemy({
+          x: evt.x,
+          y: evt.y
+        });
+      }
+    });
+    this.addListener({
+      type: "REMOVE_SHOT_ENEMY",
+      callback: function(evt) {
+        _this.removeShot({
+          targetId: evt["targetId"]
+        });
+      }
+    });
+    this.addListener({
+      type: "FIRE_PLAYER",
+      callback: function(evt) {
+        _this.firePlayer({
+          x: evt.x,
+          y: evt.y
+        })
+      }
+    });
+    this.addListener({
+      type: "HIT_ENEMY",
+      callback: function(evt) {
+        _this.hitEnemy({
+          enemyId: evt["enemyId"],
+          shotId:  evt["shotId"]
+        })
+      }
+    });
+    this.addListener({
+      type: "HIT_PLAYER",
+      callback: function(evt) {
+        _this.hitPlayer()
+      }
+    });
+    this.addListener({
+      type: "REMOVE_PLAYER",
+      callback: function(evt) {
+        _this.removePlayer()
+      }
+    });
+    this.addListener({
+      type: "REPLAY_GAME",
+      callback: function(evt) {
+        _this.replayGame()
       }
     });
   }
@@ -132,9 +198,12 @@ class Game {
         if (!enemy || enemy.isHit || !enemy.target) continue;
         var enemyMc = enemy.target;
         if (enemyMc.hitTest(shotMc.x, shotMc.y)) {
-          this.hitEnemy({
-            enemyId: enemy.id,
-            shotId:  shot.id
+          this.dispatcher({
+            type: "HIT_ENEMY",
+            object: {
+              enemyId: enemy.id,
+              shotId:  shot.id
+            }
           });
           this.removeEnemy({
             targetId: enemy.id
@@ -152,9 +221,16 @@ class Game {
         if (!playerMc) continue;
         var enemyMc  = enemy.target;
         if (enemyMc.hitTest(playerMc.x, playerMc.y)) {
-          enemyMc.hit();
+          this.dispatcher({
+            type: "HIT_PLAYER"
+          });
           enemyMc.remove();
-          this.player.hit();
+          this.dispatcher({
+            type: "HIT_ENEMY",
+            object: {
+              enemyId: enemy.id
+            }
+          });
           this.player.remove();
         }
       }
@@ -186,6 +262,9 @@ class Game {
     }
   }
 
+  hitPlayer() {
+    this.player.hit();
+  }
   resetKey(code) {
     switch(code) {
       case this.ID_KEY_FIRE:

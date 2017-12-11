@@ -13,7 +13,7 @@ class Player extends PixiBase {
     this.player = new PIXI.spine.Spine(res.alice.spineData);
     this.player.position.x = this._renderer.width * 0.5;
     this.player.position.y = this._renderer.height;
-    this.player.scale.set(0.25);
+    this.player.scale.set(0.2);
     this.stage.addChild(this.player);
   }
 
