@@ -3,10 +3,13 @@ class Game {
     this.bg        = null;
     this.player    = null;
     this.enemy     = null;
+    this.event     = null;
     this._enemies  = [];
     this._shots    = [];
+    this.listener  = [];
     this.enemyCount= null;
     this.shotCount = null;
+    this.timeCount = 0;
     this.tmp       = null;
     this.image     = assets.image;
     this.assets    = assets;
@@ -27,9 +30,11 @@ class Game {
     this.ID_KEY_DOWN   = 40;
     this.SHOT_DURATION = 4;
     this.onEnterFrame  = this.onEnterFrame.bind(this);
+    this.onTimer       = this.onTimer.bind(this);
   }
 
   init() {
+    this.event  = 0;
     this.bg      = new Stage(this.image);
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
@@ -37,6 +42,7 @@ class Game {
     this.enemyX  = 0;
     this.shotCount  = 0;
     this.enemyCount = 0;
+    this.timerCount = 0;
     this.frameCount = 0;
     for(var i = 0; i < 2; i++) {
       this.addEnemy();
@@ -45,6 +51,7 @@ class Game {
       this.key[i] = false;
     }
   }
+
   replayGame() {
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
@@ -52,9 +59,53 @@ class Game {
     this.frameCount = 0;
   }
   start() {
+    this.onTimer();
     this.onEnterFrame();
     $(window).on("keydown", this.onkeyDown.bind(this));
+    var _this = this;
+    this.addListener({
+      type: "ADD_ENEMY",
+      callback: function() {
+        _this.addEnemy()
+      }
+    });
   }
+
+  addListener(params) {
+    var type = params["type"];
+    var callback = params["callback"];
+    this.listener.push({
+      type: type,
+      callback: callback
+    });
+  }
+
+  dispatcher(params) {
+    if (!params || !params["type"]) return;
+    var type   = params["type"];
+    var object = params["object"];
+    for (let listener of this.listener) {
+      if (listener.type == type) {
+        if (object) {
+          listener.callback(object);
+        } else {
+          listener.callback();
+        }
+      }
+    }
+  }
+
+
+  onTimer() {
+    requestAnimationFrame(this.onTimer);
+    this.event++;
+    if (this.event % 120 == 0 && this._enemies.length < 10) {
+      this.dispatcher({
+        type: "ADD_ENEMY"
+      });
+    }
+  }
+
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
     if (!this.player.getAlive()) {
@@ -90,7 +141,6 @@ class Game {
           });
           enemy.isHit = true;
           shot.isHit  = true;
-          this.addEnemy();
         }
       }
     }
