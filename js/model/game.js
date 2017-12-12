@@ -174,9 +174,6 @@ class Game {
 
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
-    if (!this.player.getAlive()) {
-      this.replayGame();
-    }
     if (this.tmp != this.code) {
       this.resetKey(this.tmp);
       this.tmp = this.code;
@@ -205,9 +202,6 @@ class Game {
               shotId:  shot.id
             }
           });
-          this.removeEnemy({
-            targetId: enemy.id
-          });
           enemy.isHit = true;
           shot.isHit  = true;
         }
@@ -224,14 +218,12 @@ class Game {
           this.dispatcher({
             type: "HIT_PLAYER"
           });
-          enemyMc.remove();
           this.dispatcher({
             type: "HIT_ENEMY",
             object: {
               enemyId: enemy.id
             }
           });
-          this.player.remove();
         }
       }
     }
@@ -257,6 +249,12 @@ class Game {
         break;
       }
     }
+    this.dispatcher({
+      type: "REMOVE_ENEMY",
+      object: {
+        targetId: enemyId
+      }
+    });
     if (shotId != null) {
       this.removeShot({ targetId: shotId });
     }
@@ -264,6 +262,9 @@ class Game {
 
   hitPlayer() {
     this.player.hit();
+    this.dispatcher({
+      type: "REMOVE_PLAYER"
+    });
   }
   resetKey(code) {
     switch(code) {
