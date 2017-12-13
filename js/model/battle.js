@@ -30,7 +30,6 @@ class Battle {
         var shotMc  = shot.target.getMovieClip();
         var enemyMc = enemy.target;
         if (enemyMc.hitTest(shotMc.x, shotMc.y)) {
-          console.log(enemyMc, shotMc);
           this.target.dispatcher({
             type: param["type"],
             object: {
