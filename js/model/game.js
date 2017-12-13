@@ -53,7 +53,6 @@ class Game {
 
   removePlayer() {
     this.player.remove();
-    this.player = null;
     this.dispatcher({
       type: "REPLAY_GAME"
     });
