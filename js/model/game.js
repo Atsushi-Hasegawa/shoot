@@ -9,11 +9,10 @@ class Game {
     this.listener  = [];
     this.enemyCount= null;
     this.shotCount = null;
-    this.frameCount= null;
     this.tmp       = null;
     this.image     = assets.image;
     this.assets    = assets;
-    this.speed     = 1;
+    this.speed     = 3;
     this.code      = 0;
     this.key = {
       isLEFT:  null,
@@ -22,7 +21,6 @@ class Game {
       isDOWN:  null,
       isFIRE:  null
     };
-    this.frameCount    = null;
     this.ID_KEY_FIRE   = 32;
     this.ID_KEY_LEFT   = 37;
     this.ID_KEY_UP     = 38;
@@ -30,7 +28,6 @@ class Game {
     this.ID_KEY_DOWN   = 40;
     this.SHOT_DURATION = 4;
     this.onEnterFrame  = this.onEnterFrame.bind(this);
-    this.onTimer       = this.onTimer.bind(this);
   }
 
   init() {
@@ -42,7 +39,6 @@ class Game {
     this.enemyX  = 0;
     this.shotCount  = 0;
     this.enemyCount = 0;
-    this.frameCount = 0;
     for(var i = 0; i < 2; i++) {
       this.addEnemy();
     }
@@ -57,14 +53,13 @@ class Game {
       type: "REPLAY_GAME"
     });
   }
+
   replayGame() {
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
-    this.frameCount = 0;
   }
   start() {
-    this.onTimer();
     this.onEnterFrame();
     $(window).on("keydown", this.onkeyDown.bind(this));
     var _this = this;
@@ -161,16 +156,6 @@ class Game {
     }
   }
 
-  onTimer() {
-    requestAnimationFrame(this.onTimer);
-    this.frameCount++;
-    if (this.frameCount % 120 == 0 && this._enemies.length < 3) {
-      this.dispatcher({
-        type: "ADD_ENEMY"
-      });
-    }
-  }
-
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
     if (this.tmp != this.code) {
@@ -178,33 +163,23 @@ class Game {
       this.tmp = this.code;
     }
     if (this.key.isFIRE) {
-      this.setBullet();
       this.resetKey(this.code);
+      this.setBullet();
     }
     if (this.key.isLEFT) this.moveLeft();
     if (this.key.isRIGHT) this.moveRight();
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
+
     // 敵のアタリ判定
     this.battle.shotAttackPlayer(this._shots, this._enemies, { type: "HIT_ENEMY"});
     // 自機アタリ判定
     if (this.player && this.player.getMovieClip() && this.player.getAlive() && !this.player.getHit()) {
-      this.battle.shotAttackEnemy(this._shots, this.player, { type: "HIT_PLAYER"});
+      //this.battle.shotAttackEnemy(this._shots, this.player, { type: "HIT_PLAYER"});
       this.battle.attack(this.player, this._enemies);
     }
-    this.reloadEnemyPos();
   }
 
-  reloadEnemyPos() {
-    if (!this._enemies) return;
-    for(let enemy of this._enemies) {
-      var enemyMc = enemy.target.getMovieClip();
-      if (!enemy || !enemyMc || enemy.isHit || !enemy.target) continue;
-      if (enemyMc.x >= this.bg._renderer.width) {
-        enemyMc.x = 10;
-      }
-    }
-  }
   hitEnemy(params) {
     var enemyId = params['enemyId'];
     var shotId  = params['shotId'];
@@ -220,8 +195,13 @@ class Game {
         targetId: enemyId
       }
     });
-    if (shotId != null) {
-      this.removeShot({ targetId: shotId });
+    if (shotId !== null) {
+      this.dispatcher({
+        type: "REMOVE_SHOT_ENEMY",
+        object: {
+          targetId: shotId
+        }
+      });
     }
   }
 
@@ -274,10 +254,14 @@ class Game {
 
   setBullet() {
     if (!this.player) return;
-     this.firePlayer({
-       x: this.playerX,
-       y: this.playerY
-     });
+    this.dispatcher({
+      type: "FIRE_PLAYER",
+      object: {
+        x: this.playerX,
+        y: this.playerY
+      }
+    });
+    this.player.setBullet();
   }
 
   addEnemy() {
@@ -289,7 +273,7 @@ class Game {
       target: enemy,
       isHit: false
     });
-    enemy.main();
+    enemy.run();
   }
 
   firePlayer(params) {

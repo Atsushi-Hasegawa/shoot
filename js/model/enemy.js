@@ -2,15 +2,13 @@ class Enemy extends PixiBase {
   constructor(assets, bg, id) {
     super(assets, bg);
     this.id      = id;
-    this.speed   = 1;
+    this.speed   = 0.5;
     this.enemy   = null;
     this.isAlive = null;
     this.isHit   = null;
-    this.move    = this.move.bind(this);
-    this.execute = this.execute.bind(this);
+    this.move = this.move.bind(this);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
-    this.init();
   }
 
   onAssetsLoaded(loader, res) {
@@ -49,18 +47,13 @@ class Enemy extends PixiBase {
     this.stage.removeChild(this.enemy);
   }
 
-  move(pos) {
-    if (!this.isAlive || !this.enemy) return;
-    if (pos.x) this.enemy.x = pos.x;
-  }
-
   hitTest(x, y) {
     if (!this.enemy) return;
-    return this.enemy.x == x && Math.abs(this.enemy.y - y) < this.enemy.height;
+    return Math.abs(this.enemy.x - x) <= this.enemy.width * 0.25 && Math.abs(this.enemy.y - y) < this.enemy.height;
   }
 
-  execute() {
-    requestAnimationFrame(this.execute);
+  move() {
+    requestAnimationFrame(this.move);
     if (!this.enemy) return;
     var pos = this.enemy.x + this.speed;
     if (pos < this._renderer.width + this.enemy.width) {
@@ -69,7 +62,8 @@ class Enemy extends PixiBase {
       this.remove();
     }
   }
-  main() {
-    this.execute();
+  run() {
+    this.init();
+    this.move();
   }
 }

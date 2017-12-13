@@ -22,6 +22,10 @@ class Player extends PixiBase {
     this.isHit  = false;
   }
 
+  setBullet() {
+    if (!this.isAlive) return;
+  }
+
   getAlive() {
     return this.isAlive;
   }
@@ -55,7 +59,7 @@ class Player extends PixiBase {
   }
   hitTest(x, y) {
     if (!this.player) return;
-    return this.player.x == x && Math.abs(this.player.y - y) < this.player.height;
+    return Math.abs(this.player.x - x) < this.player.width * 0.25 && Math.abs(this.player.y - y) < this.player.height;
   }
 
 }

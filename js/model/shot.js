@@ -2,7 +2,7 @@ class Shot {
   constructor(pos, bg, id) {
     this.shot = null;
     this.bg   = bg;
-    this.speed = 1;
+    this.speed = 3;
     this.x    = pos.x;
     this.y    = pos.y;
     this.id   = id;
@@ -18,6 +18,7 @@ class Shot {
 
   remove() {
     this.bg.stage.removeChild(this.shot);
+
   }
   getMovieClip() {
     return this.shot;

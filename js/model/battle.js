@@ -7,7 +7,7 @@ class Battle {
     for(let enemy of enemies) {
       if (!enemy || enemy.isHit || !enemy.target) continue;
       var playerMc = player.getMovieClip();
-      if (!playerMc) continue;
+      if (!playerMc || !player.getAlive()) continue;
       var enemyMc  = enemy.target;
       if (enemyMc.hitTest(playerMc.x, playerMc.y)) {
         this.target.dispatcher({
@@ -22,36 +22,37 @@ class Battle {
       }
     }
   }
-  shotAttackPlayer(shots, objects, param) {
+  shotAttackPlayer(shots, enemies, param) {
     for (let shot of shots) {
-      var shotMc  = shot.target.getMovieClip();
-      if (!shot || !shotMc | shot.isHit || !shot.target) continue;
-      for (let object of objects) {
-        if (!object || object.isHit || !object.target) continue;
-        var objectMc = object.target;
-        if (objectMc.hitTest(shotMc.x, shotMc.y)) {
+      for (let enemy of enemies) {
+        if (!enemy || enemy.isHit || !enemy.target) continue;
+        if (!shot || shot.isHit || !shot.target) continue;
+        var shotMc  = shot.target.getMovieClip();
+        var enemyMc = enemy.target;
+        if (enemyMc.hitTest(shotMc.x, shotMc.y)) {
+          console.log(enemyMc, shotMc);
           this.target.dispatcher({
             type: param["type"],
             object: {
-              enemyId: object.id,
+              enemyId: enemy.id,
               shotId:  shot.id
             }
           });
-          object.isHit = true;
+          enemy.isHit = true;
           shot.isHit  = true;
         }
       }
     }
   }
 
-  shotAttackEnemy(shots, object, param) {
+  shotAttackEnemy(shots, player, param) {
     for (let shot of shots) {
       var shotMc  = shot.target.getMovieClip();
       if (!shot || !shotMc | shot.isHit || !shot.target) continue;
-      if (object.hitTest(shotMc.x, shotMc.y)) {
+      if (player.hitTest(shotMc.x, shotMc.y)) {
         this.target.dispatcher(param);
-        object.isHit = true;
-        shot.isHit  = true;
+        player.isHit = true;
+        shot.isHit   = true;
       }
     }
   }
