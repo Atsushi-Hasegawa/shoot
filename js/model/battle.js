@@ -2,6 +2,7 @@ class Battle {
   constructor(target) {
     this.target = target;
   }
+
   attack(player, enemies) {
     for(let enemy of enemies) {
       if (!enemy || enemy.isHit || !enemy.target) continue;
@@ -21,8 +22,7 @@ class Battle {
       }
     }
   }
-
-  shotAttack(shots, objects) {
+  shotAttackPlayer(shots, objects, param) {
     for (let shot of shots) {
       var shotMc  = shot.target.getMovieClip();
       if (!shot || !shotMc | shot.isHit || !shot.target) continue;
@@ -31,7 +31,7 @@ class Battle {
         var objectMc = object.target;
         if (objectMc.hitTest(shotMc.x, shotMc.y)) {
           this.target.dispatcher({
-            type: "HIT_ENEMY",
+            type: param["type"],
             object: {
               enemyId: object.id,
               shotId:  shot.id
@@ -40,6 +40,18 @@ class Battle {
           object.isHit = true;
           shot.isHit  = true;
         }
+      }
+    }
+  }
+
+  shotAttackEnemy(shots, object, param) {
+    for (let shot of shots) {
+      var shotMc  = shot.target.getMovieClip();
+      if (!shot || !shotMc | shot.isHit || !shot.target) continue;
+      if (object.hitTest(shotMc.x, shotMc.y)) {
+        this.target.dispatcher(param);
+        object.isHit = true;
+        shot.isHit  = true;
       }
     }
   }

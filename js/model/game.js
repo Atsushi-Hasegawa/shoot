@@ -3,13 +3,13 @@ class Game {
     this.bg        = null;
     this.player    = null;
     this.enemy     = null;
-    this.event     = null;
     this.battle    = null;
     this._enemies  = [];
     this._shots    = [];
     this.listener  = [];
     this.enemyCount= null;
     this.shotCount = null;
+    this.frameCount= null;
     this.tmp       = null;
     this.image     = assets.image;
     this.assets    = assets;
@@ -34,7 +34,6 @@ class Game {
   }
 
   init() {
-    this.event  = 0;
     this.bg      = new Stage(this.image);
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
@@ -163,11 +162,10 @@ class Game {
     }
   }
 
-
   onTimer() {
     requestAnimationFrame(this.onTimer);
-    this.event++;
-    if (this.event % 120 == 0 && this._enemies.length < 10) {
+    this.frameCount++;
+    if (this.frameCount % 120 == 0 && this._enemies.length < 3) {
       this.dispatcher({
         type: "ADD_ENEMY"
       });
@@ -182,7 +180,6 @@ class Game {
     }
     if (this.key.isFIRE) {
       this.setBullet();
-      this.frameCount++;
       this.resetKey(this.code);
     }
     if (this.key.isLEFT) this.moveLeft();
@@ -190,9 +187,10 @@ class Game {
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
     // 敵のアタリ判定
-    this.battle.shotAttack(this._shots, this._enemies);
+    this.battle.shotAttackPlayer(this._shots, this._enemies, { type: "HIT_ENEMY"});
     // 自機アタリ判定
     if (this.player && this.player.getMovieClip() && this.player.getAlive() && !this.player.getHit()) {
+      this.battle.shotAttackEnemy(this._shots, this.player, { type: "HIT_PLAYER"});
       this.battle.attack(this.player, this._enemies);
     }
     this.reloadEnemyPos();

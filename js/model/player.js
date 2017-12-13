@@ -22,10 +22,6 @@ class Player extends PixiBase {
     this.isHit  = false;
   }
 
-  setFire() {
-    if (!this.isAlive) return;
-  }
-
   getAlive() {
     return this.isAlive;
   }
@@ -57,4 +53,9 @@ class Player extends PixiBase {
     if (pos.x) this.player.x = pos.x;
     if (pos.y) this.player.y = pos.y;
   }
+  hitTest(x, y) {
+    if (!this.player) return;
+    return this.player.x == x && Math.abs(this.player.y - y) < this.player.height;
+  }
+
 }
