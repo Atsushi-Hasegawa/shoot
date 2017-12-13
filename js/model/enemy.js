@@ -2,7 +2,7 @@ class Enemy extends PixiBase {
   constructor(assets, bg, id) {
     super(assets, bg);
     this.id      = id;
-    this.speed   = 0.5;
+    this.speed   = 2;
     this.enemy   = null;
     this.isAlive = null;
     this.isHit   = null;
@@ -28,6 +28,10 @@ class Enemy extends PixiBase {
     return this.id;
   }
 
+  getPosition() {
+    if (!this.enemy) return;
+    return this.enemy;
+  }
   getAlive() {
     return this.isAlive;
   }

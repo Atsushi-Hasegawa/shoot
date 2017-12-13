@@ -27,6 +27,7 @@ class Game {
     this.ID_KEY_RIGHT  = 39;
     this.ID_KEY_DOWN   = 40;
     this.SHOT_DURATION = 4;
+    this.onTimer       = this.onTimer.bind(this);
     this.onEnterFrame  = this.onEnterFrame.bind(this);
   }
 
@@ -59,8 +60,10 @@ class Game {
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
   }
+
   start() {
     this.onEnterFrame();
+    this.onTimer();
     $(window).on("keydown", this.onkeyDown.bind(this));
     var _this = this;
     this.addListener({
@@ -155,6 +158,22 @@ class Game {
       }
     }
   }
+  onTimer() {
+    requestAnimationFrame(this.onTimer);
+    if (this._enemies.length < 3) {
+      this.dispatcher({
+        type: "ADD_ENEMY"
+      });
+    } else {
+      for (let enemy of this._enemies) {
+        var _enemy = enemy.target;
+        if (!enemy || enemy.isHit || !_enemy || !_enemy.getPosition()) continue;
+        if (_enemy.getPosition().x < this.bg._renderer.width) continue;
+        _enemy.remove();
+        this._enemies.splice(enemy);
+      }
+    }
+  }
 
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
@@ -211,6 +230,7 @@ class Game {
       type: "REMOVE_PLAYER"
     });
   }
+
   resetKey(code) {
     switch(code) {
       case this.ID_KEY_FIRE:
