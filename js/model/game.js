@@ -4,6 +4,7 @@ class Game {
     this.player    = null;
     this.enemy     = null;
     this.event     = null;
+    this.battle    = null;
     this._enemies  = [];
     this._shots    = [];
     this.listener  = [];
@@ -38,6 +39,7 @@ class Game {
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
+    this.battle  = new Battle(this);
     this.enemyX  = 0;
     this.shotCount  = 0;
     this.enemyCount = 0;
@@ -188,44 +190,10 @@ class Game {
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
     // 敵のアタリ判定
-    for (let shot of this._shots) {
-      var shotMc  = shot.target.getMovieClip();
-      if (!shot || !shotMc | shot.isHit || !shot.target) continue;
-      for (let enemy of this._enemies) {
-        if (!enemy || enemy.isHit || !enemy.target) continue;
-        var enemyMc = enemy.target;
-        if (enemyMc.hitTest(shotMc.x, shotMc.y)) {
-          this.dispatcher({
-            type: "HIT_ENEMY",
-            object: {
-              enemyId: enemy.id,
-              shotId:  shot.id
-            }
-          });
-          enemy.isHit = true;
-          shot.isHit  = true;
-        }
-      }
-    }
+    this.battle.shotAttack(this._shots, this._enemies);
     // 自機アタリ判定
     if (this.player && this.player.getMovieClip() && this.player.getAlive() && !this.player.getHit()) {
-      for(let enemy of this._enemies) {
-        if (!enemy || enemy.isHit || !enemy.target) continue;
-        var playerMc = this.player.getMovieClip();
-        if (!playerMc) continue;
-        var enemyMc  = enemy.target;
-        if (enemyMc.hitTest(playerMc.x, playerMc.y)) {
-          this.dispatcher({
-            type: "HIT_PLAYER"
-          });
-          this.dispatcher({
-            type: "HIT_ENEMY",
-            object: {
-              enemyId: enemy.id
-            }
-          });
-        }
-      }
+      this.battle.attack(this.player, this._enemies);
     }
     this.reloadEnemyPos();
   }
