@@ -369,6 +369,9 @@ class Game {
     this.player.move({
       x: this.playerX
     });
+    this.bg.move({
+      x: this.playerX
+    });
   }
 
   moveRight() {
@@ -378,6 +381,9 @@ class Game {
       this.playerX = this.bg._renderer.width;
     }
     this.player.move({
+      x: this.playerX
+    });
+    this.bg.move({
       x: this.playerX
     });
   }
