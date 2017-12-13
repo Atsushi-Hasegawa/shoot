@@ -301,7 +301,8 @@ class Game {
       target: shot,
       isHit:  false
     });
-    shot.main();
+    shot.init();
+    shot.execute();
   }
 
   removeEnemy(param) {
