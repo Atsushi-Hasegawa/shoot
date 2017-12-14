@@ -252,7 +252,7 @@ class Game {
   }
 
   hitPlayer() {
-    this.player.hit();
+    this.player.setHit();
     this.dispatcher({
       type: "REMOVE_PLAYER"
     });
@@ -308,7 +308,6 @@ class Game {
         y: this.playerY
       }
     });
-    this.player.setBullet();
   }
 
   addEnemy() {

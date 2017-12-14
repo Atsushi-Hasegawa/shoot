@@ -22,10 +22,6 @@ class Player extends PixiBase {
     this.isHit  = false;
   }
 
-  setBullet() {
-    if (!this.isAlive) return;
-  }
-
   getAlive() {
     return this.isAlive;
   }
@@ -43,12 +39,11 @@ class Player extends PixiBase {
     return this.player.height;
   }
 
-  hit() {
+  setHit() {
     this.isAlive = false;
   }
 
   remove() {
-    if (this.getAlive()) return;
     this.stage.removeChild(this.player);
   }
 
