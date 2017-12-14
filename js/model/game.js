@@ -26,7 +26,6 @@ class Game {
     this.ID_KEY_UP     = 38;
     this.ID_KEY_RIGHT  = 39;
     this.ID_KEY_DOWN   = 40;
-    this.SHOT_DURATION = 4;
     this.onTimer       = this.onTimer.bind(this);
     this.onEnterFrame  = this.onEnterFrame.bind(this);
   }
@@ -49,15 +48,44 @@ class Game {
 
   removePlayer() {
     this.player.remove();
-    this.dispatcher({
-      type: "REPLAY_GAME"
-    });
+    this.gameOver();
   }
 
   replayGame() {
     this.player  = new Player(this.assets.player, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
+  }
+
+  gameOver() {
+    //XXX: styleに関しては検討する価値あり
+    var style = new PIXI.TextStyle({
+                      fontFamily: 'Arial',
+                      fontSize: 36,
+                      fontStyle: 'italic',
+                      fontWeight: 'bold',
+                      fill: ['#ffffff', '#00ff99'], // gradient
+                      stroke: '#4a1850',
+                      strokeThickness: 5,
+                      dropShadow: true,
+                      dropShadowColor: '#000000',
+                      dropShadowBlur: 4,
+                      dropShadowAngle: Math.PI / 6,
+                      dropShadowDistance: 6,
+                      wordWrap: true,
+                      wordWrapWidth: 440
+                    });
+    var text = new PIXI.Text('GAME OVER', style);
+    text.x = this.bg._renderer.width * 0.5;
+    text.y = this.bg._renderer.height * 0.5;
+    this.bg.stage.addChild(text);
+    var _this = this;
+    $(window).on('click', function() {
+      _this.bg.stage.removeChild(text);
+      _this.dispatcher({
+        type: "REPLAY_GAME"
+      });
+    });
   }
 
   start() {
