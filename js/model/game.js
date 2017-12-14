@@ -82,6 +82,7 @@ class Game {
     var _this = this;
     $(window).on('click', function() {
       _this.bg.stage.removeChild(text);
+      if (_this.player.getAlive()) return;
       _this.dispatcher({
         type: "REPLAY_GAME"
       });
