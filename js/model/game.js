@@ -37,7 +37,6 @@ class Game {
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
     this.battle  = new Battle(this);
-    this.enemyX  = 0;
     this.shotCount  = 0;
     this.enemyCount = 0;
     for(var i = 0; i < 2; i++) {
