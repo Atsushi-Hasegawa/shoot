@@ -48,6 +48,7 @@ class Game {
 
   removePlayer() {
     this.player.remove();
+    this.player = null;
     this.gameOver();
   }
 
@@ -82,7 +83,7 @@ class Game {
     var _this = this;
     $(window).on('click', function() {
       _this.bg.stage.removeChild(text);
-      if (_this.player.getAlive()) return;
+      if (_this.player) return;
       _this.dispatcher({
         type: "REPLAY_GAME"
       });
@@ -130,7 +131,8 @@ class Game {
       callback: function(evt) {
         _this.firePlayer({
           x: evt.x,
-          y: evt.y
+          y: evt.y,
+          type: evt.type
         })
       }
     });
@@ -302,13 +304,25 @@ class Game {
 
   setBullet() {
     if (!this.player) return;
+    var type = this.changeBullet();
     this.dispatcher({
       type: "FIRE_PLAYER",
       object: {
         x: this.playerX,
-        y: this.playerY
+        y: this.playerY,
+        type: type
       }
     });
+  }
+
+  changeBullet() {
+    if (!this.player) return;
+    var bullet = document.bullet.gun;
+    var index = bullet.selectedIndex;
+    if (index != 0) {
+      return bullet.options[index].value;
+    }
+    return null;
   }
 
   addEnemy() {
