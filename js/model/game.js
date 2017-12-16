@@ -199,8 +199,12 @@ class Game {
         var _enemy = enemy.target;
         if (!enemy || enemy.isHit || !_enemy || !_enemy.getPosition()) continue;
         if (_enemy.getPosition().x < this.bg._renderer.width) continue;
-        _enemy.remove();
-        this._enemies.splice(enemy);
+        this.dispatcher({
+          type: "REMOVE_ENEMY",
+          object: {
+            targetId: _enemy.id
+          }
+        });
       }
     }
   }
