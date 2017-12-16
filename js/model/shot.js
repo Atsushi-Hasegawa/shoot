@@ -13,7 +13,7 @@ class Shot {
   init() {
     this.change();
     this.shot.x = this.x;
-    this.shot.y = this.y - 30;
+    this.shot.y = this.y;
     this.bg.stage.addChild(this.shot);
   }
 
@@ -34,7 +34,7 @@ class Shot {
         this.shot = new PIXI.Graphics().beginFill(0xFF6600,0.5).drawRect(0,0,10,5).endFill();
         break;
       default:
-        this.shot = new PIXI.Graphics().beginFill(0xFFFFFF,0.5).drawCircle(0,0,5).endFill();
+        this.shot = new PIXI.Graphics().beginFill(0x00ff33,0.6).drawCircle(0,0,5).endFill();
         break;
     }
     return this.shot;

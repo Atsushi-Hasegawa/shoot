@@ -313,7 +313,7 @@ class Game {
       type: "FIRE_PLAYER",
       object: {
         x: this.playerX,
-        y: this.playerY,
+        y: this.playerY - this.player.getHeight() * 0.5,
         type: type
       }
     });

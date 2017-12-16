@@ -13,7 +13,7 @@ class Player extends PixiBase {
     this.player = new PIXI.spine.Spine(res.alice.spineData);
     this.player.position.x = this._renderer.width * 0.5;
     this.player.position.y = this._renderer.height;
-    this.player.scale.set(0.2);
+    this.player.scale.set(0.15);
     this.stage.addChild(this.player);
   }
 
@@ -52,6 +52,7 @@ class Player extends PixiBase {
     if (pos.x) this.player.x = pos.x;
     if (pos.y) this.player.y = pos.y;
   }
+
   hitTest(x, y) {
     if (!this.player) return;
     return Math.abs(this.player.x - x) < this.player.width * 0.25 && Math.abs(this.player.y - y) < this.player.height;

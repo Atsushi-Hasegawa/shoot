@@ -1,4 +1,3 @@
-
 class Stage {
   constructor(image) {
     this.image    = image;

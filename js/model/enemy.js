@@ -15,7 +15,7 @@ class Enemy extends PixiBase {
     this.enemy = new PIXI.spine.Spine(res.enemy.spineData);
     this.enemy.position.x = 10;
     this.enemy.position.y = this._renderer.height;
-    this.enemy.scale.set(0.5);
+    this.enemy.scale.set(0.2);
     this.stage.addChild(this.enemy);
   }
 
@@ -66,6 +66,7 @@ class Enemy extends PixiBase {
       this.remove();
     }
   }
+
   run() {
     this.init();
     this.move();
