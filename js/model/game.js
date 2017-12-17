@@ -156,7 +156,9 @@ class Game {
     this.addListener({
       type: "HIT_PLAYER",
       callback: function(evt) {
-        _this.hitPlayer()
+        _this.hitPlayer({
+          shotId: evt["shotId"]
+        })
       }
     });
     this.addListener({
@@ -267,11 +269,20 @@ class Game {
     }
   }
 
-  hitPlayer() {
+  hitPlayer(param) {
+    var shotId = param["shotId"];
     this.player.setHit();
     this.dispatcher({
       type: "REMOVE_PLAYER"
     });
+    if (shotId !== null) {
+      this.dispatcher({
+        type: "REMOVE_SHOT_ENEMY",
+        object: {
+          targetId: shotId
+        }
+      });
+    }
   }
 
   resetKey(code) {

@@ -11,7 +11,10 @@ class Battle {
       var enemyMc  = enemy.target;
       if (enemyMc.hitTest(playerMc.x, playerMc.y)) {
         this.target.dispatcher({
-          type: "HIT_PLAYER"
+          type: "HIT_PLAYER",
+          object: {
+            shotId: null
+          }
         });
         this.target.dispatcher({
           type: "HIT_ENEMY",
@@ -48,9 +51,14 @@ class Battle {
     for (let shot of shots) {
       var shotMc  = shot.target.getMovieClip();
       if (!shot || !shotMc | shot.isHit || !shot.target) continue;
-      if (!player) continue;
+      if (!player || !player.getAlive()) continue;
       if (player.hitTest(shotMc.x, shotMc.y)) {
-        this.target.dispatcher(param);
+        this.target.dispatcher({
+          type: param["type"],
+          object: {
+            shotId: shot.id
+          }
+        });
         player.isHit = true;
         shot.isHit   = true;
       }
