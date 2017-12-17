@@ -48,6 +48,7 @@ class Battle {
     for (let shot of shots) {
       var shotMc  = shot.target.getMovieClip();
       if (!shot || !shotMc | shot.isHit || !shot.target) continue;
+      if (!player) continue;
       if (player.hitTest(shotMc.x, shotMc.y)) {
         this.target.dispatcher(param);
         player.isHit = true;

@@ -6,6 +6,7 @@ class Game {
     this.battle    = null;
     this._enemies  = [];
     this._shots    = [];
+    this._eshots   = [];
     this.listener  = [];
     this.enemyCount= null;
     this.shotCount = null;
@@ -38,9 +39,6 @@ class Game {
     this.battle  = new Battle(this);
     this.shotCount  = 0;
     this.enemyCount = 0;
-    for(var i = 0; i < 2; i++) {
-      this.addEnemy();
-    }
     for(var i in this.key) {
       this.key[i] = false;
     }
@@ -133,7 +131,17 @@ class Game {
           x: evt.x,
           y: evt.y,
           type: evt.type
-        })
+        });
+      }
+    });
+    this.addListener({
+      type: "FIRE_ENEMY_BULLET",
+      callback: function(evt) {
+        _this.fireEnemyBullet({
+          x: evt.x,
+          y: evt.y,
+          type: evt.type
+        });
       }
     });
     this.addListener({
@@ -224,15 +232,16 @@ class Game {
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
 
+    //敵は連続で銃撃
+    this.setEnemyBullet();
     // 敵のアタリ判定
     this.battle.shotAttackPlayer(this._shots, this._enemies, { type: "HIT_ENEMY"});
+    this.battle.shotAttackEnemy(this._eshots, this.player, { type: "HIT_PLAYER"});
     // 自機アタリ判定
     if (this.player && this.player.getMovieClip() && this.player.getAlive() && !this.player.getHit()) {
-      //this.battle.shotAttackEnemy(this._shots, this.player, { type: "HIT_PLAYER"});
       this.battle.attack(this.player, this._enemies);
     }
   }
-
   hitEnemy(params) {
     var enemyId = params['enemyId'];
     var shotId  = params['shotId'];
@@ -306,6 +315,22 @@ class Game {
     }
   }
 
+  setEnemyBullet() {
+    if (!this._enemies) return;
+    for (let enemy of this._enemies) {
+      var enemyMc = enemy.target.getPosition();
+      if (!enemy || enemy.isHit || !enemyMc || enemy.isShot) continue;
+      this.dispatcher({
+        type: "FIRE_ENEMY_BULLET",
+        object: {
+          x: enemyMc.x,
+          y: enemyMc.y - (enemyMc.height * 0.5),
+          type: null
+        }
+      });
+      enemy.isShot = true;
+    }
+  }
   setBullet() {
     if (!this.player) return;
     var type = this.changeBullet();
@@ -333,12 +358,13 @@ class Game {
     var id = this.enemyCount;
     this.enemyCount++;
     var enemy = new Enemy(this.assets.enemy, this.bg, id);
+    enemy.run();
     this._enemies.push({
       id: id,
       target: enemy,
-      isHit: false
+      isHit: false,
+      isShot: false
     });
-    enemy.run();
   }
 
   firePlayer(params) {
@@ -349,6 +375,19 @@ class Game {
       id:     id,
       target: shot,
       isHit:  false
+    });
+    shot.init();
+    shot.execute();
+  }
+
+  fireEnemyBullet(params) {
+    var id = this.shotCount;
+    this.shotCount++;
+    var shot = new EnemyShot(params, this.bg, id);
+    this._eshots.push({
+      id:     id,
+      target: shot,
+      isHit:  false,
     });
     shot.init();
     shot.execute();

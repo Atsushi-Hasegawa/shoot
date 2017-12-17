@@ -22,12 +22,12 @@ class Enemy extends PixiBase {
   init() {
     this.isAlive = true;
     this.isHit   = false;
+    this.isShot  = false;
   }
 
   getId() {
     return this.id;
   }
-
   getPosition() {
     if (!this.enemy) return;
     return this.enemy;
@@ -35,11 +35,11 @@ class Enemy extends PixiBase {
   getAlive() {
     return this.isAlive;
   }
-
   getHit() {
     return this.isHit;
   }
   getMovieClip() {
+    if (!this.enemy) return;
     return this.enemy;
   }
 
