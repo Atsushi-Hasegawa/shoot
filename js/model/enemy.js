@@ -6,7 +6,9 @@ class Enemy extends PixiBase {
     this.enemy   = null;
     this.isAlive = null;
     this.isHit   = null;
-    this.move = this.move.bind(this);
+    this.degree  = 0;
+    this.counter = 0;
+    this.move = this.move.bind(this, 1);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
   }
@@ -56,12 +58,18 @@ class Enemy extends PixiBase {
     return Math.abs(this.enemy.x - x) <= this.enemy.width * 0.25 && Math.abs(this.enemy.y - y) < this.enemy.height;
   }
 
-  move() {
+  move(type) {
     requestAnimationFrame(this.move);
     if (!this.enemy) return;
     var pos = this.enemy.x + this.speed;
+    var y = Math.sin(this.degree) * this.speed;
+    this.counter++;
+    if (this.counter % 60 === 0) {
+      this.degree -= this.speed;
+    }
     if (pos < this._renderer.width + this.enemy.width) {
       this.enemy.x = pos;
+      this.enemy.y += y;
     } else {
       this.remove();
     }
@@ -69,6 +77,6 @@ class Enemy extends PixiBase {
 
   run() {
     this.init();
-    this.move();
+    this.move(1);
   }
 }

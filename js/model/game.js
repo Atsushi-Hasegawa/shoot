@@ -234,7 +234,7 @@ class Game {
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
 
-    //敵は連続で銃撃
+    //敵の銃撃
     this.setEnemyBullet();
     // 敵のアタリ判定
     this.battle.shotAttackPlayer(this._shots, this._enemies, { type: "HIT_ENEMY"});
