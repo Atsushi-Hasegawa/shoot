@@ -16,6 +16,16 @@ class Enemy extends PixiBase {
     this.enemy.position.x = 10;
     this.enemy.position.y = this._renderer.height;
     this.enemy.scale.set(0.2);
+    
+    // Play idle animation if exists
+    if (this.enemy.state && this.enemy.state.setAnimation) {
+      try {
+        this.enemy.state.setAnimation(0, 'idle', true);
+      } catch (e) {
+        console.warn("Animation 'idle' not found for enemy");
+      }
+    }
+    
     this.stage.addChild(this.enemy);
   }
 

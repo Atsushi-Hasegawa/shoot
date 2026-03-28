@@ -13,6 +13,16 @@ class Player extends PixiBase {
     this.player.position.x = this._renderer.width * 0.5;
     this.player.position.y = this._renderer.height;
     this.player.scale.set(0.15);
+    
+    // Play idle animation if exists
+    if (this.player.state && this.player.state.setAnimation) {
+      try {
+        this.player.state.setAnimation(0, 'idle', true);
+      } catch (e) {
+        console.warn("Animation 'idle' not found for player");
+      }
+    }
+    
     this.stage.addChild(this.player);
   }
 

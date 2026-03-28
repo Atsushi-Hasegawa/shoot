@@ -256,10 +256,21 @@ class Game {
     this._enemies = this._enemies.filter(enemy => {
       if (enemy.target && enemy.target.isAlive) {
         enemy.target.update();
+        // Update spine animation state
+        if (enemy.target.enemy && enemy.target.enemy.state) {
+          enemy.target.enemy.state.update(1/60);
+          enemy.target.enemy.state.apply(enemy.target.enemy.skeleton);
+        }
         return true;
       }
       return false;
     });
+
+    // Update player spine animation
+    if (this.player && this.player.player && this.player.player.state) {
+      this.player.player.state.update(1/60);
+      this.player.player.state.apply(this.player.player.skeleton);
+    }
 
     //敵の銃撃
     this.setEnemyBullet();
