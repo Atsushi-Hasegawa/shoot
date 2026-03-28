@@ -11,10 +11,14 @@ class Player extends PixiBase {
   onAssetsLoaded(spineData) {
     this.player = new PIXI.spine.Spine(spineData);
     this.player.position.x = this._renderer.width * 0.5;
-    this.player.position.y = this._renderer.height;
+    this.player.position.y = this._renderer.height * 0.8; // Position adjusted upward
     this.player.scale.set(0.15);
     
-    // Play idle animation if exists
+    // Set to initial pose
+    this.player.skeleton.setToSetupPose();
+    this.player.updateWorldTransform();
+    
+    // Play idle animation
     if (this.player.state && this.player.state.setAnimation) {
       try {
         this.player.state.setAnimation(0, 'idle', true);

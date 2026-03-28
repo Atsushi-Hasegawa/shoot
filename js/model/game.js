@@ -44,9 +44,16 @@ class Game {
 
   loadAssets(onComplete) {
     var loader = new PIXI.loaders.Loader();
+    // 明示的に .json と .atlas のペアをロードする設定（metadataを使う手法）
     loader.add('player', this.assets.player.json);
     loader.add('enemy', this.assets.enemy.json);
+    
     loader.load((loader, res) => {
+      // 読み込み完了後、spineDataが存在するかチェック
+      if (!res.player.spineData || !res.enemy.spineData) {
+        console.error("Spine data failed to load. Check if .atlas and .png are in the same directory.");
+      }
+
       this.playerData = res.player.spineData;
       this.enemyData  = res.enemy.spineData;
       

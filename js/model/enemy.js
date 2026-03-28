@@ -14,10 +14,14 @@ class Enemy extends PixiBase {
   onAssetsLoaded(spineData) {
     this.enemy = new PIXI.spine.Spine(spineData);
     this.enemy.position.x = 10;
-    this.enemy.position.y = this._renderer.height;
+    this.enemy.position.y = this._renderer.height * 0.8; // Position adjusted upward
     this.enemy.scale.set(0.2);
     
-    // Play idle animation if exists
+    // Set to initial pose
+    this.enemy.skeleton.setToSetupPose();
+    this.enemy.updateWorldTransform();
+    
+    // Play idle animation
     if (this.enemy.state && this.enemy.state.setAnimation) {
       try {
         this.enemy.state.setAnimation(0, 'idle', true);
