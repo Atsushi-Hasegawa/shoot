@@ -19,12 +19,13 @@ class Enemy extends PixiBase {
     
     // Set to initial pose
     this.enemy.skeleton.setToSetupPose();
-    this.enemy.updateWorldTransform();
+    // this.enemy.updateWorldTransform();
+    this.enemy.update(0)
     
     // Play idle animation
     if (this.enemy.state && this.enemy.state.setAnimation) {
       try {
-        this.enemy.state.setAnimation(0, 'idle', true);
+        this.enemy.state.setAnimation(0, '01.idle', true);
       } catch (e) {
         console.warn("Animation 'idle' not found for enemy");
       }

@@ -16,7 +16,8 @@ class Player extends PixiBase {
     
     // Set to initial pose
     this.player.skeleton.setToSetupPose();
-    this.player.updateWorldTransform();
+    // this.player.updateWorldTransform();
+    this.player.update(0)
     
     // Play idle animation
     if (this.player.state && this.player.state.setAnimation) {
