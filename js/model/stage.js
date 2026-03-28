@@ -1,7 +1,7 @@
 class Stage {
   constructor(image) {
     this.image    = image;
-    this.width     = 600;
+    this.width     = 640;
     this.height    = 320;
     this.alpha     = 10;
     this.position  = 0;

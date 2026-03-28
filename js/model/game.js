@@ -90,8 +90,8 @@ class Game {
 
   start() {
     this.onEnterFrame();
-    this.onTimer();
     $(window).on("keydown", this.onkeyDown.bind(this));
+    $(window).on("keyup", this.onkeyUp.bind(this));
     var _this = this;
     this.addListener({
       type: "ADD_ENEMY",
@@ -199,34 +199,20 @@ class Game {
     }
   }
   onTimer() {
-    requestAnimationFrame(this.onTimer);
     if (this._enemies.length < 3) {
       this.dispatcher({
         type: "ADD_ENEMY"
       });
-    } else {
-      for (let enemy of this._enemies) {
-        var _enemy = enemy.target;
-        if (!enemy || enemy.isHit || !_enemy || !_enemy.getPosition()) continue;
-        if (_enemy.getPosition().x < this.bg._renderer.width) continue;
-        this.dispatcher({
-          type: "REMOVE_ENEMY",
-          object: {
-            targetId: _enemy.id
-          }
-        });
-      }
     }
   }
 
   onEnterFrame() {
     requestAnimationFrame(this.onEnterFrame);
-    if (this.tmp != this.code) {
-      this.resetKey(this.tmp);
-      this.tmp = this.code;
-    }
+    
+    // Spawn enemies
+    this.onTimer();
+
     if (this.key.isFIRE) {
-      this.resetKey(this.code);
       this.setBullet();
     }
     if (this.key.isLEFT) this.moveLeft();
@@ -234,14 +220,45 @@ class Game {
     if (this.key.isUP) this.moveUp();
     if (this.key.isDOWN) this.moveDown();
 
+    // Update shots
+    this._shots = this._shots.filter(shot => {
+      if (shot.target && shot.target.isActive) {
+        shot.target.update();
+        return true;
+      }
+      return false;
+    });
+
+    this._eshots = this._eshots.filter(shot => {
+      if (shot.target && shot.target.isActive) {
+        shot.target.update();
+        return true;
+      }
+      return false;
+    });
+
+    // Update enemies
+    this._enemies = this._enemies.filter(enemy => {
+      if (enemy.target && enemy.target.isAlive) {
+        enemy.target.update();
+        return true;
+      }
+      return false;
+    });
+
     //敵の銃撃
     this.setEnemyBullet();
     // 敵のアタリ判定
-    this.battle.shotAttackPlayer(this._shots, this._enemies, { type: "HIT_ENEMY"});
-    this.battle.shotAttackEnemy(this._eshots, this.player, { type: "HIT_PLAYER"});
+    this.battle.playerShotsAttackEnemies(this._shots, this._enemies, { type: "HIT_ENEMY"});
+    this.battle.enemyShotsAttackPlayer(this._eshots, this.player, { type: "HIT_PLAYER"});
     // 自機アタリ判定
     if (this.player && this.player.getMovieClip() && this.player.getAlive() && !this.player.getHit()) {
       this.battle.attack(this.player, this._enemies);
+    }
+
+    // Rendering
+    if (this.bg && this.bg._renderer) {
+      this.bg._renderer.render(this.bg.stage);
     }
   }
   hitEnemy(params) {
@@ -326,6 +343,10 @@ class Game {
     }
   }
 
+  onkeyUp(e) {
+    this.resetKey(e.keyCode);
+  }
+
   setEnemyBullet() {
     if (!this._enemies) return;
     for (let enemy of this._enemies) {
@@ -353,10 +374,11 @@ class Game {
         type: type
       }
     });
+    this.key.isFIRE = false;
   }
 
   changeBullet() {
-    if (!this.player) return;
+    if (!this.player || !document.bullet || !document.bullet.gun) return null;
     var bullet = document.bullet.gun;
     var index = bullet.selectedIndex;
     if (index != 0) {
@@ -388,7 +410,6 @@ class Game {
       isHit:  false
     });
     shot.init();
-    shot.execute();
   }
 
   fireEnemyBullet(params) {
@@ -401,7 +422,6 @@ class Game {
       isHit:  false,
     });
     shot.init();
-    shot.execute();
   }
 
   removeEnemy(param) {

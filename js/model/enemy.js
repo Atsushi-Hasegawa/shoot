@@ -8,7 +8,6 @@ class Enemy extends PixiBase {
     this.isHit   = null;
     this.degree  = 0;
     this.counter = 0;
-    this.move = this.move.bind(this, 1);
     this.loader
     .load(this.onAssetsLoaded.bind(this));
   }
@@ -50,17 +49,19 @@ class Enemy extends PixiBase {
   }
 
   remove() {
-    this.stage.removeChild(this.enemy);
+    this.isAlive = false;
+    if (this.enemy) {
+      this.stage.removeChild(this.enemy);
+    }
   }
 
   hitTest(x, y) {
-    if (!this.enemy) return;
+    if (!this.enemy || !this.isAlive) return;
     return Math.abs(this.enemy.x - x) <= this.enemy.width * 0.25 && Math.abs(this.enemy.y - y) < this.enemy.height;
   }
 
-  move(type) {
-    requestAnimationFrame(this.move);
-    if (!this.enemy) return;
+  update() {
+    if (!this.enemy || !this.isAlive) return;
     var pos = this.enemy.x + this.speed;
     var y = Math.sin(this.degree) * this.speed;
     this.counter++;
@@ -77,6 +78,5 @@ class Enemy extends PixiBase {
 
   run() {
     this.init();
-    this.move(1);
   }
 }

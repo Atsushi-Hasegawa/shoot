@@ -25,7 +25,7 @@ class Battle {
       }
     }
   }
-  shotAttackPlayer(shots, enemies, param) {
+  playerShotsAttackEnemies(shots, enemies, param) {
     for (let shot of shots) {
       for (let enemy of enemies) {
         if (!enemy || enemy.isHit || !enemy.target) continue;
@@ -47,10 +47,11 @@ class Battle {
     }
   }
 
-  shotAttackEnemy(shots, player, param) {
+  enemyShotsAttackPlayer(shots, player, param) {
     for (let shot of shots) {
+      if (!shot || shot.isHit || !shot.target) continue;
       var shotMc  = shot.target.getMovieClip();
-      if (!shot || !shotMc | shot.isHit || !shot.target) continue;
+      if (!shotMc) continue;
       if (!player || !player.getAlive()) continue;
       if (player.hitTest(shotMc.x, shotMc.y)) {
         this.target.dispatcher({

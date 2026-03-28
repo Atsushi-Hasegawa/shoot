@@ -7,7 +7,7 @@ class Shot {
     this.y    = param.y;
     this.type = param.type;
     this.id   = id;
-    this.execute = this.execute.bind(this);
+    this.isActive = true;
   }
 
   init() {
@@ -22,6 +22,7 @@ class Shot {
   }
 
   remove() {
+    this.isActive = false;
     this.bg.stage.removeChild(this.shot);
   }
 
@@ -40,10 +41,27 @@ class Shot {
     return this.shot;
   }
 
-  execute() {
-    requestAnimationFrame(this.execute);
+  update() {
+    if (!this.isActive || !this.shot) return;
     var pos = this.shot.x - this.speed;
     if (pos > 0) {
+      this.shot.x = pos;
+    } else {
+      this.remove();
+    }
+  }
+}
+
+class EnemyShot extends Shot {
+  constructor(param, bg, id) {
+    super(param, bg, id);
+    this.speed = 3;
+  }
+
+  update() {
+    if (!this.isActive || !this.shot) return;
+    var pos = this.shot.x + this.speed;
+    if (pos < this.bg._renderer.width) {
       this.shot.x = pos;
     } else {
       this.remove();
