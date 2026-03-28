@@ -1,10 +1,8 @@
 class PixiBase {
-  constructor(assets, bg) {
+  constructor(spineData, bg) {
     this.stage     = bg.stage;
     this._renderer = bg._renderer;
-    this.loader    = new PIXI.loaders.Loader();
-    this.loader
-    .add(assets.name, assets.json);
+    this.spineData = spineData;
     this.stage.interactive = true;
   }
 

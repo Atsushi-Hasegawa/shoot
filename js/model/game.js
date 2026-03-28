@@ -31,17 +31,32 @@ class Game {
     this.onEnterFrame  = this.onEnterFrame.bind(this);
   }
 
-  init() {
+  init(onComplete) {
     this.bg      = new Stage(this.image);
-    this.player  = new Player(this.assets.player, this.bg);
-    this.playerX = this.bg._renderer.width * 0.5;
-    this.playerY = this.bg._renderer.height;
-    this.battle  = new Battle(this);
     this.shotCount  = 0;
     this.enemyCount = 0;
     for(var i in this.key) {
       this.key[i] = false;
     }
+
+    this.loadAssets(onComplete);
+  }
+
+  loadAssets(onComplete) {
+    var loader = new PIXI.loaders.Loader();
+    loader.add('player', this.assets.player.json);
+    loader.add('enemy', this.assets.enemy.json);
+    loader.load((loader, res) => {
+      this.playerData = res.player.spineData;
+      this.enemyData  = res.enemy.spineData;
+      
+      this.player  = new Player(this.playerData, this.bg);
+      this.playerX = this.bg._renderer.width * 0.5;
+      this.playerY = this.bg._renderer.height;
+      this.battle  = new Battle(this);
+      
+      if (onComplete) onComplete();
+    });
   }
 
   removePlayer() {
@@ -51,7 +66,7 @@ class Game {
   }
 
   replayGame() {
-    this.player  = new Player(this.assets.player, this.bg);
+    this.player  = new Player(this.playerData, this.bg);
     this.playerX = this.bg._renderer.width * 0.5;
     this.playerY = this.bg._renderer.height;
   }
@@ -390,7 +405,7 @@ class Game {
   addEnemy() {
     var id = this.enemyCount;
     this.enemyCount++;
-    var enemy = new Enemy(this.assets.enemy, this.bg, id);
+    var enemy = new Enemy(this.enemyData, this.bg, id);
     enemy.run();
     this._enemies.push({
       id: id,

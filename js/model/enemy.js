@@ -1,6 +1,6 @@
 class Enemy extends PixiBase {
-  constructor(assets, bg, id) {
-    super(assets, bg);
+  constructor(spineData, bg, id) {
+    super(spineData, bg);
     this.id      = id;
     this.speed   = 2;
     this.enemy   = null;
@@ -8,12 +8,11 @@ class Enemy extends PixiBase {
     this.isHit   = null;
     this.degree  = 0;
     this.counter = 0;
-    this.loader
-    .load(this.onAssetsLoaded.bind(this));
+    this.onAssetsLoaded(spineData);
   }
 
-  onAssetsLoaded(loader, res) {
-    this.enemy = new PIXI.spine.Spine(res.enemy.spineData);
+  onAssetsLoaded(spineData) {
+    this.enemy = new PIXI.spine.Spine(spineData);
     this.enemy.position.x = 10;
     this.enemy.position.y = this._renderer.height;
     this.enemy.scale.set(0.2);

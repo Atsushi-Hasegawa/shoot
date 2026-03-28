@@ -12,10 +12,11 @@ $(function() {
   };
 
   var game = new Game(assets);
-  game.init();
-  game.start();
+  game.init(function() {
+    game.start();
 
-  // Hide loader
-  $("#loader").hide();
-  $("#content").show();
+    // Hide loader
+    $("#loader").hide();
+    $("#content").show();
+  });
 });

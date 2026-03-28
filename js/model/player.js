@@ -1,16 +1,15 @@
 class Player extends PixiBase {
-  constructor(assets, bg) {
-    super(assets, bg);
+  constructor(spineData, bg) {
+    super(spineData, bg);
     this.player  = null;
     this.isAlive = null;
     this.isHit   = null;
-    this.loader
-    .load(this.onAssetsLoaded.bind(this));
     this.init();
+    this.onAssetsLoaded(spineData);
   }
 
-  onAssetsLoaded(loader, res) {
-    this.player = new PIXI.spine.Spine(res.alice.spineData);
+  onAssetsLoaded(spineData) {
+    this.player = new PIXI.spine.Spine(spineData);
     this.player.position.x = this._renderer.width * 0.5;
     this.player.position.y = this._renderer.height;
     this.player.scale.set(0.15);
